@@ -16,6 +16,7 @@ lazy val commonSettings = Seq(
   resolvers ++= Seq(
     "Twitter Maven" at "https://maven.twttr.com",
     Resolver.bintrayRepo("jmcardon", "tsec"),
+    Resolver.bintrayRepo("akka", "maven"),
     "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven"
   ),
@@ -32,7 +33,8 @@ lazy val interface = (project in file("interface")).settings(
 
 lazy val generator = (project in file("generator"))
   .settings(
-    commonSettings
+    commonSettings,
+    libraryDependencies ++= Dependencies.generatorModule
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
