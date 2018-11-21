@@ -1,4 +1,4 @@
-package by.artsiom.bigdata101.hotels.generator
+package by.artsiom.bigdata101.hotels.generator.publisher
 
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
 
@@ -30,28 +30,28 @@ object RandomEventsPublisher {
 
   private class RandomEventsSubscription(s: Subscriber[_ >: Event],
                                          numberOfEvents: Int)
-    extends Subscription
+      extends Subscription
       with RandomDataGenerator {
     // stream iterator
     val iterator = random[Event](numberOfEvents).toIterator
     val terminated = new AtomicBoolean(false)
     val demand = new AtomicLong()
 
-    override def request(n: Long): Unit = {
+    override def request(n: Long): Unit =
       n match {
-      case num if num < 0 && !terminate() =>
-        s.onError(
-          new IllegalArgumentException("Negative subscription request!"))
-      case _ if demand.getAndAdd(n) > 0 => ()
-      case _ =>
-        Try(
-          while (demand.get() > 0 && iterator.hasNext && !terminated.get()) {
-            s.onNext(iterator.next())
-            demand.decrementAndGet()
-          })
-          .fold(err => if (!terminate()) s.onError(err),
-            _ => if (!iterator.hasNext && !terminate()) s.onComplete())
-    }}
+        case num if num < 0 && !terminate() =>
+          s.onError(
+            new IllegalArgumentException("Negative subscription request!"))
+        case _ if demand.getAndAdd(n) > 0 => ()
+        case _ =>
+          Try(
+            while (demand.get() > 0 && iterator.hasNext && !terminated.get()) {
+              s.onNext(iterator.next())
+              demand.decrementAndGet()
+            })
+            .fold(err => if (!terminate()) s.onError(err),
+                  _ => if (!iterator.hasNext && !terminate()) s.onComplete())
+      }
 
     override def cancel(): Unit = terminate()
 

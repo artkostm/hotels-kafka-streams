@@ -1,5 +1,11 @@
 package by.artsiom.bigdata101.hotels
 
-package object generator {
+import akka.Done
+import org.apache.kafka.clients.producer.ProducerRecord
 
+import scala.concurrent.Future
+
+package object generator {
+  type Mat = Future[Done]
+  type Message = ProducerRecord[String, String]
 }
