@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Flow, Sink}
+import akka.stream.scaladsl.Flow
 import by.artsiom.bigdata101.hotels.generator.converter.EventConverter
 import by.artsiom.bigdata101.hotels.generator.publisher.RandomEventsPublisher
 import by.artsiom.bigdata101.hotels.model.Event
@@ -32,10 +32,7 @@ object Main extends App with Generator with ConfigurationAware {
 
   val doneFuture = generate(RandomEventsPublisher(numberOfEvents()),
                             producerRecordFlow,
-                            Sink.foreach(println))
-
-//    .runWith(Producer.plainSink(producerSettings))
-//    .runWith(Sink.foreach(_ => ()))
+                            Producer.plainSink(producerSettings))
 
   doneFuture.onComplete(done => {
     done match {
