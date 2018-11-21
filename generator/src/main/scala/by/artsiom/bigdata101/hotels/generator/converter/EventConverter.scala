@@ -4,6 +4,7 @@ import by.artsiom.bigdata101.hotels.generator.Message
 import by.artsiom.bigdata101.hotels.model.Event
 
 object EventConverter {
+
   /**
     * To convert Event to Kafka message
     *
