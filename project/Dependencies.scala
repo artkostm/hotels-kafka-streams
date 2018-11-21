@@ -7,7 +7,7 @@ object Dependencies {
   }
 
   lazy val common = Seq(
-    )
+  )
 
   lazy val generatorModule = Seq(
     "com.danielasfregola" %% "random-data-generator" % versions.randomDataGenerator,
