@@ -27,7 +27,8 @@ object Main extends App with Generator with ConfigurationAware {
                                                           new StringSerializer,
                                                           new StringSerializer)
 
-  val producerRecordFlow = Flow.fromFunction[Event, Message](EventConverter(topic()))
+  val producerRecordFlow =
+    Flow.fromFunction[Event, Message](EventConverter(topic()))
 
   val doneFuture = generate(RandomEventsPublisher(numberOfEvents()),
                             producerRecordFlow,
