@@ -28,7 +28,7 @@ lazy val root =
   (project in file(".")).aggregate(interface, generator, batching, streaming)
 
 lazy val interface = (project in file("interface")).settings(
-  commonSettings,
+  commonSettings
 )
 
 lazy val generator = (project in file("generator"))
@@ -48,7 +48,8 @@ lazy val batching = (project in file("batching"))
 
 lazy val streaming = (project in file("streaming"))
   .settings(
-    commonSettings
+    commonSettings,
+    libraryDependencies ++= Dependencies.streamingModule
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
