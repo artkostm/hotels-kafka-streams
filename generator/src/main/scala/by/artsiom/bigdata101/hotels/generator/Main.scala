@@ -6,13 +6,14 @@ import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
-import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.{Flow, Sink}
 import by.artsiom.bigdata101.hotels.generator.converter.EventConverter
 import by.artsiom.bigdata101.hotels.generator.publisher.RandomEventsPublisher
 import by.artsiom.bigdata101.hotels.model.Event
+import net.ruippeixotog.streammon.ThroughputMonitor
 import org.apache.kafka.common.serialization.StringSerializer
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
@@ -38,7 +39,13 @@ object Main extends App with Generator with ConfigurationAware {
                                                           new StringSerializer)
 
   val producerRecordFlow =
-    Flow.fromFunction[Event, Message](EventConverter(topic()))
+    Flow
+      .fromFunction[Event, Message](EventConverter(topic()))
+      .via(ThroughputMonitor(
+        1 seconds,
+        stat =>
+          system.log.info(
+            s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")))
 
   val doneFuture = generate(RandomEventsPublisher(numberOfEvents()),
                             producerRecordFlow,
