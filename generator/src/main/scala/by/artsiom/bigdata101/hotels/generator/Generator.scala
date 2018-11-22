@@ -18,7 +18,7 @@ trait Generator {
       implicit materializer: ActorMaterializer): Mat =
     Source
       .fromPublisher(eventsPublisher)
-    .throttle(1000, 1 seconds)
+      .throttle(10, 5 seconds) // for testing only
 //    .async
 //    .buffer(10000, OverflowStrategy.backpressure)
       .via(eventConverter)
@@ -27,8 +27,6 @@ trait Generator {
 
 trait ConfigurationAware { self: Generator =>
   def topic(): String = Configuration(system).TopicName
-
   def parallelism(): Int = Configuration(system).Parallelism
-
   def numberOfEvents(): Int = Configuration(system).NumberOfEvents
 }
