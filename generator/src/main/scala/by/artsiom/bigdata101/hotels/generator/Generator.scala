@@ -2,11 +2,12 @@ package by.artsiom.bigdata101.hotels.generator
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, FlowShape, Graph, SinkShape}
+import akka.stream._
 import akka.stream.scaladsl.{Flow, Source}
 import by.artsiom.bigdata101.hotels.generator.config.Configuration
 import by.artsiom.bigdata101.hotels.model.Event
 import org.reactivestreams.Publisher
+import scala.concurrent.duration._
 
 trait Generator {
   protected val system: ActorSystem
@@ -17,6 +18,9 @@ trait Generator {
       implicit materializer: ActorMaterializer): Mat =
     Source
       .fromPublisher(eventsPublisher)
+    .throttle(1000, 1 seconds)
+//    .async
+//    .buffer(10000, OverflowStrategy.backpressure)
       .via(eventConverter)
       .runWith(sink)
 }
