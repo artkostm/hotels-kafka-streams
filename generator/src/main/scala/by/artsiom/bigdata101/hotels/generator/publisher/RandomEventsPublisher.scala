@@ -10,7 +10,7 @@ import scala.util.Try
 
 trait RandomEventsPublisher extends Publisher[Event]
 
-object RandomEventsPublisher {
+object RandomEventsPublisher extends GenUtils {
 
   /**
     * A {@link RandomEventsPublisher} is a provider of a bounded number of random sequenced events
