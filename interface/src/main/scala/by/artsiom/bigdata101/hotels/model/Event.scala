@@ -1,8 +1,8 @@
 package by.artsiom.bigdata101.hotels.model
 
-import java.util.Date
+import java.time.OffsetDateTime
 
-final case class Event(dateTime: Date,
+final case class Event(dateTime: OffsetDateTime,
                        siteName: Int,
                        posaContinent: Int,
                        userLocationCountry: Int,
@@ -13,8 +13,8 @@ final case class Event(dateTime: Date,
                        isMobile: Boolean,
                        isPackage: Boolean,
                        channel: Int,
-                       srchCi: Date,
-                       srchCo: Date,
+                       srchCi: OffsetDateTime,
+                       srchCo: OffsetDateTime,
                        srchAdultsCnt: Int,
                        srchChildrenCnt: Int,
                        srchRmCnt: Int,

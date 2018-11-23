@@ -1,17 +1,18 @@
 package by.artsiom.bigdata101.hotels.generator
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
-import akka.stream.scaladsl.{Flow, Sink}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import by.artsiom.bigdata101.hotels.generator.converter.EventConverter
 import by.artsiom.bigdata101.hotels.generator.publisher.RandomEventsPublisher
 import by.artsiom.bigdata101.hotels.model.Event
 import net.ruippeixotog.streammon.ThroughputMonitor
-import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.kafka.common.serialization.ByteArraySerializer
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -34,9 +35,10 @@ object Main extends App with Generator with ConfigurationAware {
     ActorMaterializerSettings(system).withSupervisionStrategy(decider))
   implicit val global = system.dispatcher
 
-  val producerSettings = ProducerSettings[String, String](system,
-                                                          new StringSerializer,
-                                                          new StringSerializer)
+  val producerSettings = ProducerSettings[Array[Byte], Array[Byte]](
+    system,
+    new ByteArraySerializer,
+    new ByteArraySerializer)
 
   val producerRecordFlow =
     Flow
@@ -47,9 +49,14 @@ object Main extends App with Generator with ConfigurationAware {
           system.log.info(
             s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")))
 
-  val doneFuture = generate(RandomEventsPublisher(numberOfEvents()),
-                            producerRecordFlow,
-                            Producer.plainSink(producerSettings))
+  val doneFuture = generate(
+    Source
+      .fromPublisher(RandomEventsPublisher(numberOfEvents()))
+      .throttle(10, 3 seconds), // for testing only
+    producerRecordFlow,
+    Sink.ignore
+    //Producer.plainSink(producerSettings)
+  ).run()
 
   doneFuture.onComplete(done => {
     done match {
