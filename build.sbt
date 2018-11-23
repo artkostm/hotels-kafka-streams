@@ -14,11 +14,11 @@ lazy val commonSettings = Seq(
     "-Ypartial-unification"
   ),
   resolvers ++= Seq(
-    "Twitter Maven" at "https://maven.twttr.com",
+    "Twitter Maven".at("https://maven.twttr.com"),
     Resolver.bintrayRepo("jmcardon", "tsec"),
     Resolver.bintrayRepo("akka", "maven"),
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-    "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven"
+    "Sonatype OSS Snapshots".at("https://oss.sonatype.org/content/repositories/snapshots"),
+    "krasserm at bintray".at("http://dl.bintray.com/krasserm/maven")
   ),
   libraryDependencies ++= Dependencies.common,
   scalafmtOnCompile := true

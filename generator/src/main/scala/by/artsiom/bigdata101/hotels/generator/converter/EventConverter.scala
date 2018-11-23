@@ -18,19 +18,20 @@ object EventConverter {
     override def encode(t: OffsetDateTime, schema: Schema): AnyRef =
       t.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
   }
-  private implicit val schemaFor = SchemaFor[Event]
-  private implicit val encoder = Encoder[Event]
-  private implicit val namingStrategy = SnakeCase
-  private implicit val schema = AvroSchema[Event]
+
+  implicit private val schemaFor      = SchemaFor[Event]
+  implicit private val encoder        = Encoder[Event]
+  implicit private val namingStrategy = SnakeCase
+  implicit private val schema         = AvroSchema[Event]
 
   /**
-    * To convert Event to Kafka message
-    *
-    * @param topic - the name of a topic that exists in Kafka
-    * @return A Function that accepts Event and converts it to ProducerRecord
-    */
+   * To convert Event to Kafka message
+   *
+   * @param topic - the name of a topic that exists in Kafka
+   * @return A Function that accepts Event and converts it to ProducerRecord
+   */
   def apply(topic: String): Event => Message = { event =>
-    val baos = new ByteArrayOutputStream()
+    val baos   = new ByteArrayOutputStream()
     val output = AvroOutputStream.binary[Event].to(baos).build(schema)
     output.write(event)
     output.close()

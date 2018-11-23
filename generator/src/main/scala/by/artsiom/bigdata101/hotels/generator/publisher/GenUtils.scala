@@ -7,16 +7,15 @@ import org.scalacheck.Gen._
 
 trait GenUtils {
   val SECONDS_PER_HOUR = 3600
-  val MAX_SECONDS = 18 * SECONDS_PER_HOUR
+  val MAX_SECONDS      = 18 * SECONDS_PER_HOUR
 
   import ZoneOffset._
 
   implicit lazy val arbOffsetDateTime: Arbitrary[OffsetDateTime] =
     Arbitrary {
       for {
-        seconds <- chooseNum(LDT.MIN.toEpochSecond(UTC),
-                             LDT.MAX.toEpochSecond(UTC))
-        nanos <- chooseNum(LDT.MIN.getNano, LDT.MAX.getNano)
+        seconds    <- chooseNum(LDT.MIN.toEpochSecond(UTC), LDT.MAX.toEpochSecond(UTC))
+        nanos      <- chooseNum(LDT.MIN.getNano, LDT.MAX.getNano)
         zoneOffset <- chooseNum(-MAX_SECONDS, MAX_SECONDS)
       } yield
         OffsetDateTime.of(

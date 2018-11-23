@@ -1,6 +1,5 @@
 package by.artsiom.bigdata101.hotels.generator
 
-import java.nio.charset.StandardCharsets
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
 import akka.actor.ActorSystem
@@ -20,8 +19,7 @@ import scala.util.{Failure, Success}
 
 object Main extends App with Generator with ConfigurationAware {
 
-  override protected implicit val system: ActorSystem = ActorSystem(
-    "hotel_events_generator")
+  implicit override protected val system: ActorSystem = ActorSystem("hotel_events_generator")
 
   val decider: Supervision.Decider = error => {
     system.log.error(error, "Exception handled: " + error.getMessage)
@@ -31,23 +29,21 @@ object Main extends App with Generator with ConfigurationAware {
     }
   }
 
-  implicit val actorMaterializer = ActorMaterializer(
-    ActorMaterializerSettings(system).withSupervisionStrategy(decider))
-  implicit val global = system.dispatcher
+  implicit val actorMaterializer = ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(decider))
+  implicit val global            = system.dispatcher
 
-  val producerSettings = ProducerSettings[Array[Byte], Array[Byte]](
-    system,
-    new ByteArraySerializer,
-    new ByteArraySerializer)
+  val producerSettings =
+    ProducerSettings[Array[Byte], Array[Byte]](system, new ByteArraySerializer, new ByteArraySerializer)
 
   val producerRecordFlow =
     Flow
       .fromFunction[Event, Message](EventConverter(topic()))
-      .via(ThroughputMonitor(
-        1 seconds,
-        stat =>
-          system.log.info(
-            s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")))
+      .via(
+        ThroughputMonitor(
+          1 seconds,
+          stat => system.log.info(s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")
+        )
+      )
 
   val doneFuture = generate(
     Source

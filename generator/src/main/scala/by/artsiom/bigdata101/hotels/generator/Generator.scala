@@ -12,17 +12,17 @@ trait Generator {
 
   def generate(eventSource: Graph[SourceShape[Event], NotUsed],
                eventConverter: Graph[FlowShape[Event, Message], NotUsed],
-               sink: Graph[SinkShape[Message], Mat])(
-      implicit materializer: ActorMaterializer): RunnableGraph[Mat] =
+               sink: Graph[SinkShape[Message], Mat])(implicit materializer: ActorMaterializer): RunnableGraph[Mat] =
     RunnableGraph.fromGraph(GraphDSL.create(sink) { implicit builder => s =>
       import GraphDSL.Implicits._
+
       eventSource ~> eventConverter ~> s.in
       ClosedShape
     })
 }
 
 trait ConfigurationAware { self: Generator =>
-  def topic(): String = Configuration(system).TopicName
-  def parallelism(): Int = Configuration(system).Parallelism
+  def topic(): String       = Configuration(system).TopicName
+  def parallelism(): Int    = Configuration(system).Parallelism
   def numberOfEvents(): Int = Configuration(system).NumberOfEvents
 }
