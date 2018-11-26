@@ -2,7 +2,6 @@ name := "hotels-kafka-streams"
 
 lazy val commonSettings = Seq(
   version := "0.5.0",
-  scalaVersion := "2.12.7",
   scalacOptions := Seq(
     "-feature",
     "-encoding",
@@ -15,8 +14,6 @@ lazy val commonSettings = Seq(
     "-Ypartial-unification"
   ),
   resolvers ++= Seq(
-    "Twitter Maven".at("https://maven.twttr.com"),
-    Resolver.bintrayRepo("jmcardon", "tsec"),
     Resolver.bintrayRepo("akka", "maven"),
     "Sonatype OSS Snapshots".at("https://oss.sonatype.org/content/repositories/snapshots"),
     "krasserm at bintray".at("http://dl.bintray.com/krasserm/maven")
@@ -26,44 +23,48 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root =
-  (project in file(".")).aggregate(interface, spark_common, generator, batching, streaming)
+  (projectMatrix in file(".")).aggregate(interface, spark_common, generator, batching, streaming)
 
-lazy val interface = (project in file("interface")).settings(
+lazy val interface = (projectMatrix in file("interface"))
+  .scalaVersions("2.12.7", "2.11.12")
+  .settings(
   commonSettings
 )
+  .jvmPlatform()
 
-lazy val spark_common = (project in file("spark-common"))
+lazy val spark_common = (projectMatrix in file("spark-common"))
+  .scalaVersions("2.11.12")
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.sparkCommon
   )
   .dependsOn(interface)
+  .jvmPlatform()
 
-lazy val generator = (project in file("generator"))
+lazy val generator = (projectMatrix in file("generator"))
+  .scalaVersions("2.12.7")
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.generatorModule
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
+  .jvmPlatform()
 
-lazy val batching = (project in file("batching"))
+lazy val batching = standardSparkModule(projectMatrix in file("batching"))
   .settings(
-    commonSettings,
-    libraryDependencies ++= Dependencies.batchingModule,
-    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+    libraryDependencies ++= Dependencies.batchingModule
   )
-  .dependsOn(interface, spark_common)
-  .enablePlugins(JavaAppPackaging)
 
-lazy val streaming = (project in file("streaming"))
+lazy val streaming = standardSparkModule(projectMatrix in file("streaming"))
   .settings(
-    commonSettings,
-    libraryDependencies ++= Dependencies.streamingModule,
-    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+    libraryDependencies ++= Dependencies.streamingModule
   )
-  .dependsOn(interface, spark_common)
-  .enablePlugins(JavaAppPackaging)
+
+lazy val elastic = standardSparkModule(projectMatrix in file("elastic"))
+  .settings(
+    libraryDependencies ++= Dependencies.elastic
+  )
 
 assemblyMergeStrategy in assembly := {
   case PathList("org", "apache", _*)                        => MergeStrategy.last
@@ -74,3 +75,14 @@ assemblyMergeStrategy in assembly := {
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
+
+def standardSparkModule(proj: ProjectMatrix): ProjectMatrix =
+  proj
+    .scalaVersions("2.11.12")
+    .settings(
+      commonSettings,
+      assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+    )
+    .dependsOn(interface, spark_common)
+    .enablePlugins(JavaAppPackaging)
+    .jvmPlatform()
