@@ -7,7 +7,7 @@ import org.apache.spark.sql.types.BinaryType
 object Main extends App with HotelImplicits {
 
   args match {
-    case Array(brockerList, topicName, outputDir) =>
+    case Array(brokerList, topicName, outputDir) =>
       implicit val spark = SparkSession.builder
         .master("local[*]")
         .appName("hotels-streaming")
@@ -15,7 +15,7 @@ object Main extends App with HotelImplicits {
 
       val kafkaDF = spark.read
         .format("kafka")
-        .option("kafka.bootstrap.servers", brockerList)
+        .option("kafka.bootstrap.servers", brokerList)
         .option("subscribe", topicName)
         .option("startingOffsets", "earliest")
         .load()

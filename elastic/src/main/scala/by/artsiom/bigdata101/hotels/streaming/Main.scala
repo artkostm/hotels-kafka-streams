@@ -1,4 +1,4 @@
-package by.artsiom.bigdata101.hotels.streaming
+package main.scala.by.artsiom.bigdata101.hotels.streaming
 
 import by.artsiom.bigdata101.hotels.HotelImplicits
 import org.apache.spark.sql.SparkSession
