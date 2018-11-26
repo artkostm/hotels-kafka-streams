@@ -26,11 +26,18 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root =
-  (project in file(".")).aggregate(interface, generator, batching, streaming)
+  (project in file(".")).aggregate(interface, spark_common, generator, batching, streaming)
 
 lazy val interface = (project in file("interface")).settings(
   commonSettings
 )
+
+lazy val spark_common = (project in file("spark-common"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Dependencies.sparkCommon
+  )
+  .dependsOn(interface)
 
 lazy val generator = (project in file("generator"))
   .settings(
@@ -46,7 +53,7 @@ lazy val batching = (project in file("batching"))
     libraryDependencies ++= Dependencies.batchingModule,
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
   )
-  .dependsOn(interface)
+  .dependsOn(interface, spark_common)
   .enablePlugins(JavaAppPackaging)
 
 lazy val streaming = (project in file("streaming"))
@@ -55,15 +62,15 @@ lazy val streaming = (project in file("streaming"))
     libraryDependencies ++= Dependencies.streamingModule,
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
   )
-  .dependsOn(interface)
+  .dependsOn(interface, spark_common)
   .enablePlugins(JavaAppPackaging)
 
 assemblyMergeStrategy in assembly := {
-    case PathList("org", "apache", _*) => MergeStrategy.last
-    case PathList("com", "google", _*) => MergeStrategy.last
-    case "log4j.properties" => MergeStrategy.last
-    case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.concat
-    case x =>
-      val oldStrategy = (assemblyMergeStrategy in assembly).value
-      oldStrategy(x)
+  case PathList("org", "apache", _*)                        => MergeStrategy.last
+  case PathList("com", "google", _*)                        => MergeStrategy.last
+  case "log4j.properties"                                   => MergeStrategy.last
+  case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.concat
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
 }
