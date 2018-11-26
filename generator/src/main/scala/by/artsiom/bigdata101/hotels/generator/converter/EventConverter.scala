@@ -1,24 +1,13 @@
 package by.artsiom.bigdata101.hotels.generator.converter
 
 import java.io.ByteArrayOutputStream
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 import by.artsiom.bigdata101.hotels.generator.Message
 import by.artsiom.bigdata101.hotels.model.Event
 import com.sksamuel.avro4s._
-import org.apache.avro.Schema
 
 object EventConverter {
-  implicit object DateSchemaFor extends SchemaFor[OffsetDateTime] {
-    override val schema: Schema = Schema.create(Schema.Type.STRING)
-  }
-
-  implicit object DateEncoder extends Encoder[OffsetDateTime] {
-    override def encode(t: OffsetDateTime, schema: Schema): AnyRef =
-      t.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-  }
-
+  import Event._
   implicit private val schemaFor      = SchemaFor[Event]
   implicit private val encoder        = Encoder[Event]
   implicit private val namingStrategy = SnakeCase
