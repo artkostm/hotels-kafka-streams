@@ -28,16 +28,18 @@ object Main extends App with HotelImplicits {
         .select($"value".cast(BinaryType).as("event"))
         .fromAvro("event")
         .writeStream
-        .format("parquet")
-        .queryName("parquet_files_to_hdfs")
-        .outputMode(OutputMode.Append())
-        .option("path", outputDir)
+        .format("es")
+        .queryName("stream_to_elastic")
+        .outputMode(OutputMode.Append)
+        .option("es.nodes", "localhost")
+        .option("es.nodes.wan.only", "true")
+        .option("es.index.auto.create", "true")
         .option("checkpointLocation", s"$outputDir/checkpoint")
-        .start()
+        .start(outputDir)
         .awaitTermination()
     case _ =>
       sys.error(
-        "Usage: spark-submit --class Main --master <master> streaming.jar <brocker-list> <topic-name> <out-dir>"
+        "Usage: spark-submit --class Main --master <master> elastic.jar <brocker-list> <topic-name> <out-dir>"
       )
   }
 }

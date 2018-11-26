@@ -12,8 +12,8 @@ object Dependencies {
   }
   
   lazy val spark = Seq(
-    "org.apache.spark" %% "spark-core" % versions.spark, // % Provided,
-    "org.apache.spark" %% "spark-sql"  % versions.spark // % Provided
+    "org.apache.spark" %% "spark-core" % versions.spark % Provided,
+    "org.apache.spark" %% "spark-sql"  % versions.spark % Provided
   )
 
   lazy val common = Seq(
@@ -26,7 +26,7 @@ object Dependencies {
   )
   
   lazy val sparkStreaming = spark ++ Seq(
-    "org.apache.spark" %% "spark-streaming" % versions.spark // % Provided
+    "org.apache.spark" %% "spark-streaming" % versions.spark % Provided
   )
 
   lazy val generatorModule = Seq(

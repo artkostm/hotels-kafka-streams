@@ -19,7 +19,11 @@ lazy val commonSettings = Seq(
     "krasserm at bintray".at("http://dl.bintray.com/krasserm/maven")
   ),
   libraryDependencies ++= Dependencies.common,
-  scalafmtOnCompile := true
+  scalafmtOnCompile := true,
+  assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", _ @ _*) => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  }
 )
 
 lazy val root =
@@ -66,15 +70,7 @@ lazy val elastic = standardSparkModule(projectMatrix in file("elastic"))
     libraryDependencies ++= Dependencies.elastic
   )
 
-assemblyMergeStrategy in assembly := {
-  case PathList("org", "apache", _*)                        => MergeStrategy.last
-  case PathList("com", "google", _*)                        => MergeStrategy.last
-  case "log4j.properties"                                   => MergeStrategy.last
-  case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.concat
-  case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
-    oldStrategy(x)
-}
+
 
 def standardSparkModule(proj: ProjectMatrix): ProjectMatrix =
   proj
