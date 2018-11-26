@@ -6,11 +6,12 @@ lazy val commonSettings = Seq(
   scalacOptions := Seq(
     "-feature",
     "-encoding",
-    "-deprecation",
+    //"-deprecation",
     "UTF-8",
     "-language:higherKinds",
     "-language:existentials",
     "-language:implicitConversions",
+    "-language:postfixOps",
     "-Ypartial-unification"
   ),
   resolvers ++= Seq(
@@ -41,7 +42,9 @@ lazy val generator = (project in file("generator"))
 
 lazy val batching = (project in file("batching"))
   .settings(
-    commonSettings
+    commonSettings,
+    libraryDependencies ++= Dependencies.batchingModule,
+    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
@@ -49,7 +52,18 @@ lazy val batching = (project in file("batching"))
 lazy val streaming = (project in file("streaming"))
   .settings(
     commonSettings,
-    libraryDependencies ++= Dependencies.streamingModule
+    libraryDependencies ++= Dependencies.streamingModule,
+    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
+
+assemblyMergeStrategy in assembly := {
+    case PathList("org", "apache", _*) => MergeStrategy.last
+    case PathList("com", "google", _*) => MergeStrategy.last
+    case "log4j.properties" => MergeStrategy.last
+    case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.concat
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+}
