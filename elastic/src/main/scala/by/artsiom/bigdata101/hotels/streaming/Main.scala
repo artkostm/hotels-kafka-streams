@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.types.BinaryType
 
-object ToHdfsMain extends App with HotelImplicits {
+object Main extends App with HotelImplicits {
 
   args match {
     case Array(brokerList, topicName, outputDir) =>
