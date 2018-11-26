@@ -7,6 +7,8 @@ import akka.stream.scaladsl.{GraphDSL, RunnableGraph}
 import by.artsiom.bigdata101.hotels.generator.config.Configuration
 import by.artsiom.bigdata101.hotels.model.Event
 
+import scala.concurrent.duration.FiniteDuration
+
 trait Generator {
   protected val system: ActorSystem
 
@@ -22,7 +24,8 @@ trait Generator {
 }
 
 trait ConfigurationAware { self: Generator =>
-  def topic(): String       = Configuration(system).TopicName
-  def parallelism(): Int    = Configuration(system).Parallelism
-  def numberOfEvents(): Int = Configuration(system).NumberOfEvents
+  def topic(): String                             = Configuration(system).TopicName
+  def parallelism(): Int                          = Configuration(system).Parallelism
+  def numberOfEvents(): Int                       = Configuration(system).NumberOfEvents
+  def throttling(): Option[(Int, FiniteDuration)] = Configuration(system).Throttling.toOption
 }
