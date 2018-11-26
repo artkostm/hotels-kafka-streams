@@ -45,13 +45,13 @@ object Main extends App with Generator with ConfigurationAware {
         )
       )
 
+  val eventSource = Source.fromPublisher(RandomEventsPublisher(numberOfEvents()))
+
   val doneFuture = generate(
-    Source
-      .fromPublisher(RandomEventsPublisher(numberOfEvents()))
-      .throttle(10, 3 seconds), // for testing only
-    producerRecordFlow,
-    Sink.ignore
-    //Producer.plainSink(producerSettings)
+    Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
+    throttling().fold(producerRecordFlow)(t => producerRecordFlow.throttle(t._1, t._2)), // for testing only,
+    //Sink.ignore
+    Producer.plainSink(producerSettings)
   ).run()
 
   doneFuture.onComplete(done => {
@@ -62,5 +62,5 @@ object Main extends App with Generator with ConfigurationAware {
     system.terminate()
   })
 
-  Await.ready(system.whenTerminated, Duration(1, TimeUnit.MINUTES))
+  Await.ready(system.whenTerminated, Duration(5, TimeUnit.MINUTES))
 }
