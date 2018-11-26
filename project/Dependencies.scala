@@ -11,14 +11,14 @@ object Dependencies {
   }
 
   lazy val common = Seq(
-    )
+    "com.sksamuel.avro4s" %% "avro4s-kafka" % versions.avro4s,
+    "com.sksamuel.avro4s" %% "avro4s-core"  % versions.avro4s
+  )
 
   lazy val generatorModule = Seq(
     "com.danielasfregola" %% "random-data-generator" % versions.randomDataGenerator,
     "com.typesafe.akka"   %% "akka-stream-kafka"     % versions.alpakka,
-    "net.ruippeixotog"    %% "akka-stream-mon"       % versions.akkaMonitor,
-    "com.sksamuel.avro4s" %% "avro4s-kafka"          % versions.avro4s,
-    "com.sksamuel.avro4s" %% "avro4s-core"           % versions.avro4s
+    "net.ruippeixotog"    %% "akka-stream-mon"       % versions.akkaMonitor
   )
 
   lazy val streamingModule = Seq(
@@ -27,7 +27,11 @@ object Dependencies {
     "org.apache.spark"    %% "spark-core"                 % versions.spark, // % Provided,
     "org.apache.spark"    %% "spark-streaming"            % versions.spark, // % Provided,
     "org.apache.spark"    %% "spark-sql"                  % versions.spark, // % Provided
-    "com.sksamuel.avro4s" %% "avro4s-kafka"               % versions.avro4s,
-    "com.sksamuel.avro4s" %% "avro4s-core"                % versions.avro4s
+  )
+
+  lazy val batchingModule = Seq(
+    "org.apache.spark"    %% "spark-sql-kafka-0-10"       % versions.spark,
+    "org.apache.spark"    %% "spark-core"                 % versions.spark, // % Provided,
+    "org.apache.spark"    %% "spark-sql"                  % versions.spark, // % Provided
   )
 }
