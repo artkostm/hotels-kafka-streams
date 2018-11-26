@@ -1,0 +1,78 @@
+{
+  "type" : "record",
+  "name" : "Event",
+  "namespace" : "by.artsiom.bigdata101.hotels.model",
+  "fields" : [ {
+    "name" : "dateTime",
+    "type" : "string"
+  }, {
+    "name" : "siteName",
+    "type" : "int"
+  }, {
+    "name" : "posaContinent",
+    "type" : "int"
+  }, {
+    "name" : "userLocationCountry",
+    "type" : "int"
+  }, {
+    "name" : "userLocationRegion",
+    "type" : "int"
+  }, {
+    "name" : "userLocationCity",
+    "type" : "int"
+  }, {
+    "name" : "origDestinationDistance",
+    "type" : "double"
+  }, {
+    "name" : "userId",
+    "type" : "int"
+  }, {
+    "name" : "isMobile",
+    "type" : "boolean"
+  }, {
+    "name" : "isPackage",
+    "type" : "boolean"
+  }, {
+    "name" : "channel",
+    "type" : "int"
+  }, {
+    "name" : "srchCi",
+    "type" : "string"
+  }, {
+    "name" : "srchCo",
+    "type" : "string"
+  }, {
+    "name" : "srchAdultsCnt",
+    "type" : "int"
+  }, {
+    "name" : "srchChildrenCnt",
+    "type" : "int"
+  }, {
+    "name" : "srchRmCnt",
+    "type" : "int"
+  }, {
+    "name" : "srchDestinationId",
+    "type" : "int"
+  }, {
+    "name" : "srchDestinationTypeId",
+    "type" : "int"
+  }, {
+    "name" : "isBooking",
+    "type" : "boolean"
+  }, {
+    "name" : "cnt",
+    "type" : "int"
+  }, {
+    "name" : "hotelContinent",
+    "type" : "int"
+  }, {
+    "name" : "hotelCountry",
+    "type" : "int"
+  }, {
+    "name" : "hotelMarket",
+    "type" : "int"
+  }, {
+    "name" : "hotelCluster",
+    "type" : "int"
+  } ]
+}
