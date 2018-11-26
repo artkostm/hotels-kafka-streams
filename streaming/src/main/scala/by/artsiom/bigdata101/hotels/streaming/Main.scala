@@ -1,5 +1,4 @@
 package by.artsiom.bigdata101.hotels.streaming
-
 import by.artsiom.bigdata101.hotels.HotelImplicits
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.OutputMode
