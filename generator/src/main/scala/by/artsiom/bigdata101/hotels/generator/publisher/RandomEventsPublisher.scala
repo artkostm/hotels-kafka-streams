@@ -6,8 +6,6 @@ import by.artsiom.bigdata101.hotels.model.Event
 import com.danielasfregola.randomdatagenerator.RandomDataGenerator
 import org.reactivestreams.{Publisher, Subscriber, Subscription}
 
-import scala.util.Try
-
 trait RandomEventsPublisher extends Publisher[Event]
 
 object RandomEventsPublisher extends GenUtils {
@@ -42,10 +40,12 @@ object RandomEventsPublisher extends GenUtils {
           s.onError(new IllegalArgumentException("Negative subscription request!"))
         case _ if demand.getAndAdd(n) > 0 => ()
         case _ =>
-          Try(while (demand.get() > 0 && iterator.hasNext && !terminated.get()) {
+          try while (demand.get() > 0 && iterator.hasNext && !terminated.get()) {
             s.onNext(iterator.next())
             demand.decrementAndGet()
-          }).fold(err => if (!terminate()) s.onError(err), _ => if (!iterator.hasNext && !terminate()) s.onComplete())
+          } catch {
+            case error: Throwable => if (!terminate()) s.onError(error)
+          } finally if (!iterator.hasNext && !terminate()) s.onComplete()
       }
 
     override def cancel(): Unit = terminate()
