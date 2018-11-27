@@ -4,7 +4,7 @@ object Dependencies {
   val versions = new {
     val randomDataGenerator = "2.6"
     val alpakka             = "0.22"
-    val akkaMonitor         = "0.1.0"
+    val akkaMonitor         = "0.1.1"
 
     val spark  = "2.4.0"
     val elasticsearch = "6.5.1"
@@ -32,7 +32,7 @@ object Dependencies {
   lazy val generatorModule = Seq(
     "com.danielasfregola" %% "random-data-generator" % versions.randomDataGenerator,
     "com.typesafe.akka"   %% "akka-stream-kafka"     % versions.alpakka,
-    "net.ruippeixotog"    %% "akka-stream-mon"       % versions.akkaMonitor
+    "com.github.artkostm" %% "akka-stream-mon" % versions.akkaMonitor
   )
 
   lazy val streamingModule = sparkStreaming ++ Seq(
@@ -44,7 +44,7 @@ object Dependencies {
     "org.apache.spark" %% "spark-sql-kafka-0-10" % versions.spark
   )
   
-  lazy val elastic = sparkStreaming ++ Seq(
+  lazy val elastic = streamingModule ++ Seq(
     "org.elasticsearch" %% "elasticsearch-spark-20" % versions.elasticsearch
   )
 }
