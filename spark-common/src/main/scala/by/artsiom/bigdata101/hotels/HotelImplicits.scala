@@ -4,12 +4,13 @@ import java.io.ByteArrayInputStream
 import by.artsiom.bigdata101.hotels.model.Event
 import com.sksamuel.avro4s.{AvroInputStream, AvroSchema}
 import org.apache.avro.Schema
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.util.LongAccumulator
 
-trait HotelImplicits {
-  implicit class HotelsDataframeDeserializer(dataframe: DataFrame)(implicit spark: SparkSession) {
+trait HotelImplicits extends Serializable {
+  implicit class HotelsDataframeDeserializer(dataframe: DataFrame)(implicit spark: SparkSession) extends Serializable {
     import spark.implicits._
+    import Event._
 
     val rowEventSchema = AvroSchema[Event].toString
 
