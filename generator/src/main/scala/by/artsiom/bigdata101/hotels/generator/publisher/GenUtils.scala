@@ -1,7 +1,7 @@
 package by.artsiom.bigdata101.hotels.generator.publisher
 
 import java.sql.{Date, Timestamp}
-import java.time.{OffsetDateTime, ZoneOffset, LocalDateTime => LDT}
+import java.time.{Instant, OffsetDateTime, ZoneOffset, LocalDateTime => LDT}
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen._
@@ -28,22 +28,14 @@ trait GenUtils {
   implicit lazy val arbDate: Arbitrary[Date] =
     Arbitrary {
       for {
-        year  <- chooseNum(0, 8099)
-        month <- chooseNum(0, 11)
-        day   <- chooseNum(1, 30)
-      } yield new Date(year, month, day)
+        sec  <- chooseNum(-3600, 3600)
+      } yield new Date(Instant.now().plusSeconds(sec).toEpochMilli)
     }
 
   implicit lazy val arbTimestamp: Arbitrary[Timestamp] =
     Arbitrary {
       for {
-        year  <- chooseNum(0, 8099)
-        month <- chooseNum(0, 11)
-        day   <- chooseNum(1, 30)
-        hour  <- chooseNum(0, 23)
-        min   <- chooseNum(0, 59)
-        sec   <- chooseNum(0, 59)
-        nano  <- chooseNum(0, 999999999)
-      } yield new Timestamp(year, month, day, hour, min, sec, nano)
+        sec  <- chooseNum(-3600, 3600)
+      } yield new Timestamp(Instant.now().plusSeconds(sec).toEpochMilli)
     }
 }
