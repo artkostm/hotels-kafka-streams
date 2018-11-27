@@ -27,58 +27,59 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root =
-  (projectMatrix in file(".")).aggregate(interface, spark_common, generator, batching, streaming)
+  (project in file(".")).aggregate(interface_11, interface_12, spark_common, generator, batching, streaming)
+    .settings(
+      crossScalaVersions := List()
+    )
 
-lazy val interface = (projectMatrix in file("interface"))
-  .scalaVersions("2.12.7", "2.11.12")
-  .settings(
-  commonSettings
+lazy val interface_11 = (project in file("interface_11")).settings(
+  commonSettings,
+  scalaVersion := "2.11.12"
 )
-  .jvmPlatform()
 
-lazy val spark_common = (projectMatrix in file("spark-common"))
-  .scalaVersions("2.11.12")
+lazy val interface_12 = (project in file("interface_12")).settings(
+  commonSettings,
+  scalaVersion := "2.12.7"
+)
+
+lazy val spark_common = (project in file("spark-common"))
   .settings(
     commonSettings,
+    scalaVersion := "2.11.12",
     libraryDependencies ++= Dependencies.sparkCommon
   )
-  .dependsOn(interface)
-  .jvmPlatform()
+  .dependsOn(interface_11)
 
-lazy val generator = (projectMatrix in file("generator"))
-  .scalaVersions("2.12.7")
+lazy val generator = (project in file("generator"))
   .settings(
     commonSettings,
+    scalaVersion := "2.12.7",
     libraryDependencies ++= Dependencies.generatorModule
   )
-  .dependsOn(interface)
+  .dependsOn(interface_12)
   .enablePlugins(JavaAppPackaging)
-  .jvmPlatform()
 
-lazy val batching = standardSparkModule(projectMatrix in file("batching"))
+lazy val batching = standardSparkModule(project in file("batching"))
   .settings(
     libraryDependencies ++= Dependencies.batchingModule
   )
 
-lazy val streaming = standardSparkModule(projectMatrix in file("streaming"))
+lazy val streaming = standardSparkModule(project in file("streaming"))
   .settings(
     libraryDependencies ++= Dependencies.streamingModule
   )
 
-lazy val elastic = standardSparkModule(projectMatrix in file("elastic"))
+lazy val elastic = standardSparkModule(project in file("elastic"))
   .settings(
     libraryDependencies ++= Dependencies.elastic
   )
 
-
-
-def standardSparkModule(proj: ProjectMatrix): ProjectMatrix =
+def standardSparkModule(proj: Project): Project = 
   proj
-    .scalaVersions("2.11.12")
     .settings(
       commonSettings,
+      scalaVersion := "2.11.12",
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
     )
-    .dependsOn(interface, spark_common)
+    .dependsOn(interface_11, spark_common)
     .enablePlugins(JavaAppPackaging)
-    .jvmPlatform()

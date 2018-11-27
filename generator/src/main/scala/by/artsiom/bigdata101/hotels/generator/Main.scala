@@ -50,8 +50,8 @@ object Main extends App with Generator with ConfigurationAware {
   val doneFuture = generate(
     Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
     throttling().fold(producerRecordFlow)(t => producerRecordFlow.throttle(t._1, t._2)), // for testing only,
-    //Sink.ignore
-    Producer.plainSink(producerSettings)
+    Sink.ignore
+    //Producer.plainSink(producerSettings)
   ).run()
 
   doneFuture.onComplete(done => {
