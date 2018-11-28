@@ -7,8 +7,6 @@ import by.artsiom.bigdata101.hotels.model.Event
 import com.sksamuel.avro4s._
 
 object EventConverter {
-  import Event._
-
   implicit private val schemaFor      = SchemaFor[Event]
   implicit private val encoder        = Encoder[Event]
   implicit private val namingStrategy = SnakeCase

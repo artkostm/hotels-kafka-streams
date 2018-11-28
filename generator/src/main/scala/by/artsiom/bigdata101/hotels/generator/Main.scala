@@ -24,8 +24,7 @@ object Main extends App with Generator with ConfigurationAware {
   val decider: Supervision.Decider = error => {
     system.log.error(error, "Exception handled: " + error.getMessage)
     error match {
-      case _: TimeoutException => Supervision.Stop
-      case _                   => Supervision.Stop
+      case _  => Supervision.Stop
     }
   }
 
@@ -44,8 +43,6 @@ object Main extends App with Generator with ConfigurationAware {
           stat => system.log.info(s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")
         )
       )
-
-  val eventSource = Source.fromPublisher(RandomEventsPublisher(numberOfEvents()))
 
   val doneFuture = generate(
     Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
