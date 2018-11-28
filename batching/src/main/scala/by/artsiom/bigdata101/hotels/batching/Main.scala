@@ -26,6 +26,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .option("path", config.outputDir)
       .option("checkpointLocation", s"/tmp/hotel_batching/")
       .save()
+    spark.stop()
   }
 
   override def setup(args: Array[String]): Either[InitError, (SparkSession, Config)] =

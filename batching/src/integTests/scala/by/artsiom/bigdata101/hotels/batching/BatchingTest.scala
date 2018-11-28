@@ -20,7 +20,7 @@ class BatchingTest extends TestKit(ActorSystem("batching_test")) with FlatSpecLi
 
   implicit val mat = ActorMaterializer()
 
-  implicit val kafkaConfig = EmbeddedKafkaConfig()
+  implicit val kafkaConfig = EmbeddedKafkaConfig(kafkaPort = 12345, zooKeeperPort = 6543)
   implicit val kafkaSerializer = new ByteArraySerializer()
 
   def withConfig(kafkaConf: EmbeddedKafkaConfig)(test: Config => Unit): Unit =
@@ -34,7 +34,7 @@ class BatchingTest extends TestKit(ActorSystem("batching_test")) with FlatSpecLi
 
       assert(Await.result(messagesPublished, 5 seconds) == Done)
 
-      Main.run(SparkSession.builder.appName("batching-integ-test").master("local").getOrCreate(), config)
+      Main.run(config)(SparkSession.builder.appName("batching-integ-test").master("local").getOrCreate())
 
       Thread.sleep(100000)
     }
