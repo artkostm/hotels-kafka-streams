@@ -80,7 +80,7 @@ def standardSparkModule(proj: Project): Project =
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
       libraryDependencies ++= Dependencies.integTests
     )
-    .dependsOn(interface, spark_common)
+    .dependsOn(interface, spark_common, generator % Test)
     .enablePlugins(JavaAppPackaging)
     .configs(IntegrationTests)
     .settings(inConfig(IntegrationTests)(Defaults.testSettings): _*)
