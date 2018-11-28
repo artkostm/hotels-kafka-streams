@@ -11,9 +11,11 @@ import scala.concurrent.duration.FiniteDuration
 trait Pipeline {
   protected val system: ActorSystem
 
-  def create(eventSource: Graph[SourceShape[Event], _],
-             eventConverter: Graph[FlowShape[Event, Message], _],
-             sink: Graph[SinkShape[Message], Mat])(implicit materializer: ActorMaterializer): RunnableGraph[Mat] =
+  def create(
+    eventSource: Graph[SourceShape[Event], _],
+    eventConverter: Graph[FlowShape[Event, Message], _],
+    sink: Graph[SinkShape[Message], Mat]
+  )(implicit materializer: ActorMaterializer): RunnableGraph[Mat] =
     RunnableGraph.fromGraph(GraphDSL.create(sink) { implicit builder => s =>
       import GraphDSL.Implicits._
 

@@ -13,6 +13,7 @@ private[config] class ConfigurationImpl(config: Config) extends Extension {
   val NumberOfEvents = config.getInt("generator.number-of-events")
   val Parallelism    = config.getInt("akka.kafka.producer.parallelism")
   val TopicName      = config.getString("akka.kafka.producer.topic.name")
+
   val Throttling = for {
     elements <- Try(config.getInt("generator.throttling.elements"))
     per <- Try(config.getDuration("generator.throttling.per"))

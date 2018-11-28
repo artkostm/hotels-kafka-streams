@@ -18,7 +18,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-object Main extends App with Generator with ConfigurationAware {
+object Main extends App with Pipeline with ConfigurationAware {
 
   implicit override protected val system: ActorSystem = ActorSystem("hotel_events_generator")
 
@@ -29,11 +29,17 @@ object Main extends App with Generator with ConfigurationAware {
     }
   }
 
-  implicit val actorMaterializer = ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(decider))
-  implicit val global            = system.dispatcher
+  implicit val actorMaterializer = ActorMaterializer(
+    ActorMaterializerSettings(system).withSupervisionStrategy(decider)
+  )
+  implicit val global = system.dispatcher
 
   val producerSettings =
-    ProducerSettings[Array[Byte], Array[Byte]](system, new ByteArraySerializer, new ByteArraySerializer)
+    ProducerSettings[Array[Byte], Array[Byte]](
+      system,
+      new ByteArraySerializer,
+      new ByteArraySerializer
+    )
 
   val producerRecordFlow =
     Flow
@@ -41,15 +47,18 @@ object Main extends App with Generator with ConfigurationAware {
       .via(
         ThroughputMonitor(
           1 seconds,
-          stat => system.log.info(s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s")
+          stat =>
+            system.log.info(
+              s"Processed events=${stat.count} Throughput=${"%.2f".format(stat.throughput)} ev/s"
+          )
         )
       )
 
-  val doneFuture = generate(
+  val doneFuture = create(
     Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
     throttling().fold(producerRecordFlow)(t => producerRecordFlow.throttle(t._1, t._2)),
-    //Sink.ignore
-    Producer.plainSink(producerSettings)
+    Sink.ignore
+    //Producer.plainSink(producerSettings)
   ).run()
 
   doneFuture.onComplete(done => {

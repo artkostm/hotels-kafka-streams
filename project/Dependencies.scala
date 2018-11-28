@@ -1,6 +1,7 @@
 import sbt._
 
 object Dependencies {
+
   val versions = new {
     val randomDataGenerator = "2.6"
     val alpakka             = "0.22"

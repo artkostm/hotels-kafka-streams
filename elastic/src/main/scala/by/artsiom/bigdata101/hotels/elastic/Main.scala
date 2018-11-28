@@ -54,4 +54,9 @@ object Main extends HotelsApp[Config] with HotelImplicits {
     }
 }
 
-final case class Config(brokerList: String, topicName: String, indexAndType: String, elasticNodes: String)
+final case class Config(
+  brokerList: String,
+  topicName: String,
+  indexAndType: String,
+  elasticNodes: String
+)
