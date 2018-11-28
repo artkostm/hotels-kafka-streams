@@ -42,7 +42,8 @@ lazy val interface = (project in file("interface")).settings(
 lazy val spark_common = (project in file("spark-common"))
   .settings(
     commonSettings,
-    libraryDependencies ++= Dependencies.sparkCommon
+    libraryDependencies ++= Dependencies.sparkCommon,
+    libraryDependencies ++= Dependencies.commonTest
   )
   .dependsOn(interface)
 
@@ -50,7 +51,7 @@ lazy val generator = (project in file("generator"))
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.generatorModule,
-    libraryDependencies ++= Dependencies.commonTest
+    libraryDependencies ++= Dependencies.generatorTests
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
@@ -67,7 +68,7 @@ lazy val streaming = standardSparkModule(project in file("streaming"))
 
 lazy val elastic = standardSparkModule(project in file("elastic"))
   .settings(
-    libraryDependencies ++= Dependencies.elastic
+    libraryDependencies ++= Dependencies.elasticModule
   )
 
 lazy val IntegrationTests = config("integTests").extend(Test)
@@ -77,7 +78,7 @@ def standardSparkModule(proj: Project): Project =
     .settings(
       commonSettings,
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
-      libraryDependencies ++= Dependencies.test
+      libraryDependencies ++= Dependencies.integTests
     )
     .dependsOn(interface, spark_common)
     .enablePlugins(JavaAppPackaging)
