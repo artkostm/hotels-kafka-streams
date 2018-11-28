@@ -36,7 +36,7 @@ object Main extends HotelImplicits {
           .option("es.nodes.wan.only", "true")
           .option("es.mapping.date.rich", "false")
           .option("es.index.auto.create", "true")
-          .option("checkpointLocation", "checkpoint")
+          .option("checkpointLocation", "/tmp/hotels_elastic/")
           .start(indexAndType)
           .awaitTermination()
       case _ =>

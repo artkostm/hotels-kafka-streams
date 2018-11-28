@@ -30,9 +30,11 @@ object Main extends HotelImplicits {
           .write
           .format("parquet")
           .option("path", outputDir)
-          .option("checkpointLocation", s"$outputDir/checkpoint")
+          .option("checkpointLocation", s"/tmp/hotel_batching/")
           .save()
       case _ =>
-        sys.error("Usage: spark-submit --class Main --master <master> batching.jar <brocker-list> <topic-name> <out-dir>")
+        sys.error(
+          "Usage: spark-submit --class Main --master <master> batching.jar <brocker-list> <topic-name> <out-dir>"
+        )
     }
 }

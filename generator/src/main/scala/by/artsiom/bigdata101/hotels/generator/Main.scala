@@ -1,5 +1,6 @@
 package by.artsiom.bigdata101.hotels.generator
 
+import java.io.File
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
 import akka.actor.ActorSystem
@@ -24,7 +25,7 @@ object Main extends App with Generator with ConfigurationAware {
   val decider: Supervision.Decider = error => {
     system.log.error(error, "Exception handled: " + error.getMessage)
     error match {
-      case _  => Supervision.Stop
+      case _ => Supervision.Stop
     }
   }
 

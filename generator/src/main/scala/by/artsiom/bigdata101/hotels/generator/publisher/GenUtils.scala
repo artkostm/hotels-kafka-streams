@@ -28,14 +28,14 @@ trait GenUtils {
   implicit lazy val arbDate: Arbitrary[Date] =
     Arbitrary {
       for {
-        sec  <- chooseNum(-3600, 3600)
+        sec <- chooseNum(-3600, 3600)
       } yield new Date(Instant.now().plusSeconds(sec).toEpochMilli)
     }
 
   implicit lazy val arbTimestamp: Arbitrary[Timestamp] =
     Arbitrary {
       for {
-        sec  <- chooseNum(-3600, 3600)
+        sec <- chooseNum(-3600, 3600)
       } yield new Timestamp(Instant.now().plusSeconds(sec).toEpochMilli)
     }
 }

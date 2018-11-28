@@ -18,18 +18,19 @@ lazy val commonSettings = Seq(
     Resolver.bintrayRepo("akka", "maven"),
     "Sonatype OSS Snapshots".at("https://oss.sonatype.org/content/repositories/snapshots"),
     "krasserm at bintray".at("http://dl.bintray.com/krasserm/maven"),
-    "jitpack" at "https://jitpack.io"
+    "jitpack".at("https://jitpack.io")
   ),
   libraryDependencies ++= Dependencies.common,
   scalafmtOnCompile := true,
   assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", _ @ _*) => MergeStrategy.discard
-    case _ => MergeStrategy.first
+    case PathList("META-INF", _ @_*) => MergeStrategy.discard
+    case _                           => MergeStrategy.first
   }
 )
 
 lazy val root =
-  (project in file(".")).aggregate(interface, spark_common, generator, batching, streaming, elastic)
+  (project in file("."))
+    .aggregate(interface, spark_common, generator, batching, streaming, elastic)
     .settings(
       crossScalaVersions := List()
     )
@@ -48,7 +49,8 @@ lazy val spark_common = (project in file("spark-common"))
 lazy val generator = (project in file("generator"))
   .settings(
     commonSettings,
-    libraryDependencies ++= Dependencies.generatorModule
+    libraryDependencies ++= Dependencies.generatorModule,
+    libraryDependencies ++= Dependencies.commonTest
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
@@ -68,11 +70,16 @@ lazy val elastic = standardSparkModule(project in file("elastic"))
     libraryDependencies ++= Dependencies.elastic
   )
 
-def standardSparkModule(proj: Project): Project = 
+lazy val IntegrationTests = config("integTests").extend(Test)
+
+def standardSparkModule(proj: Project): Project =
   proj
     .settings(
       commonSettings,
-      assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+      assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
+      libraryDependencies ++= Dependencies.test
     )
     .dependsOn(interface, spark_common)
     .enablePlugins(JavaAppPackaging)
+    .configs(IntegrationTests)
+    .settings(inConfig(IntegrationTests)(Defaults.testSettings): _*)
