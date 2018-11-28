@@ -6,7 +6,7 @@ import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.types.BinaryType
 
 object Main extends HotelsApp[Config] with HotelImplicits {
-  override def run(implicit spark: SparkSession, config: Config): Unit = {
+  override def run(config: Config)(implicit spark: SparkSession): Unit = {
     val kafkaStreamDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", config.brokerList)

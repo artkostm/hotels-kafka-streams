@@ -4,8 +4,10 @@ import by.artsiom.bigdata101.hotels.{HotelImplicits, HotelsApp, InitError}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.BinaryType
 
+final case class Config(brokerList: String, topicName: String, outputDir: String)
+
 object Main extends HotelsApp[Config] with HotelImplicits {
-  override def run(implicit spark: SparkSession, config: Config): Unit = {
+  override def run(config: Config)(implicit spark: SparkSession): Unit = {
     val kafkaDF = spark.read
       .format("kafka")
       .option("kafka.bootstrap.servers", config.brokerList)
@@ -46,5 +48,3 @@ object Main extends HotelsApp[Config] with HotelImplicits {
         )
     }
 }
-
-final case class Config(brokerList: String, topicName: String, outputDir: String)
