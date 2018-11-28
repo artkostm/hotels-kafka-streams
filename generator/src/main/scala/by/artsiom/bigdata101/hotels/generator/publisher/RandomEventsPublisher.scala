@@ -36,7 +36,7 @@ object RandomEventsPublisher extends GenUtils {
 
     override def request(n: Long): Unit =
       n match {
-        case num if num < 0 && !terminate() =>
+        case num if num <= 0 && !terminate() =>
           s.onError(new IllegalArgumentException("Negative subscription request!"))
         case _ if demand.getAndAdd(n) > 0 => ()
         case _ =>

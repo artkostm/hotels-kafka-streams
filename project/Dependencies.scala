@@ -60,9 +60,10 @@ object Dependencies {
     "org.scalacheck" %% "scalacheck" % versions.scalaCheck,
     "org.scalamock"  %% "scalamock"  % versions.scalaMock
   ).map(_ % Test)
-  
+
   lazy val generatorTests = commonTest ++ Seq(
-    "com.typesafe.akka" %% "akka-stream-testkit" % versions.akka
+    "com.typesafe.akka"   %% "akka-stream-testkit" % versions.akka,
+    "org.reactivestreams" % "reactive-streams-tck" % "1.0.2"
   ).map(_ % Test)
 
   lazy val integTests = commonTest ++ Seq(
