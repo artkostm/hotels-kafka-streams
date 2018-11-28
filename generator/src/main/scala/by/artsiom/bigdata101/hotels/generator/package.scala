@@ -7,5 +7,5 @@ import scala.concurrent.Future
 
 package object generator {
   type Mat     = Future[Done]
-  type Message = ProducerRecord[Array[Byte], Array[Byte]]
+  type Message = ProducerRecord[String, Array[Byte]]
 }

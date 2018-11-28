@@ -69,6 +69,7 @@ object Dependencies {
 
   lazy val integTests = commonTest ++ Seq(
     "net.manub"       %% "scalatest-embedded-kafka" % versions.embeddedKafka,
-    "pl.allegro.tech" % "embedded-elasticsearch"    % versions.embeddedElastic
+    "pl.allegro.tech" % "embedded-elasticsearch"    % versions.embeddedElastic,
+    "com.typesafe.akka"   %% "akka-stream-testkit" % versions.akka
   ).map(_ % Test)
 }

@@ -10,7 +10,7 @@ class HotelsAppSpec extends FlatSpec {
 
   def withCorrectParams(param1: String, param2: String)(testCode: HotelsApp[TestConfig] => Unit): Unit =
     testCode(new HotelsApp[TestConfig] {
-      override def run(spark: SparkSession, config: TestConfig): Unit = {
+      override def run(config: TestConfig)(implicit spark: SparkSession): Unit = {
         assert(spark == null)
         assert(config.param1 == param1)
         assert(config.param2 == param2)
