@@ -1,40 +1,50 @@
 package by.artsiom.bigdata101.hotels.batching
 
-import by.artsiom.bigdata101.hotels.HotelImplicits
+import by.artsiom.bigdata101.hotels.{HotelImplicits, HotelsApp, InitError}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.BinaryType
 
-object Main extends HotelImplicits {
+object Main extends HotelsApp[Config] with HotelImplicits {
+  override def run(implicit spark: SparkSession, config: Config): Unit = {
+    val kafkaDF = spark.read
+      .format("kafka")
+      .option("kafka.bootstrap.servers", config.brokerList)
+      .option("subscribe", config.topicName)
+      .option("startingOffsets", "earliest")
+      .load()
 
-  def main(args: Array[String]): Unit =
+    import spark.implicits._
+
+    kafkaDF
+      .coalesce(2)
+      .select($"value".cast(BinaryType).as("event"))
+      .fromAvro("event")
+      .write
+      .format("parquet")
+      .option("path", config.outputDir)
+      .option("checkpointLocation", s"/tmp/hotel_batching/")
+      .save()
+  }
+
+  override def setup(args: Array[String]): Either[InitError, (SparkSession, Config)] =
     args match {
       case Array(brokerList, topicName, outputDir) =>
-        implicit val spark = SparkSession.builder
-          .master("local[*]")
-          .appName("hotels-streaming")
-          .getOrCreate()
-
-        val kafkaDF = spark.read
-          .format("kafka")
-          .option("kafka.bootstrap.servers", brokerList)
-          .option("subscribe", topicName)
-          .option("startingOffsets", "earliest")
-          .load()
-
-        import spark.implicits._
-
-        kafkaDF
-          .coalesce(2)
-          .select($"value".cast(BinaryType).as("event"))
-          .fromAvro("event")
-          .write
-          .format("parquet")
-          .option("path", outputDir)
-          .option("checkpointLocation", s"/tmp/hotel_batching/")
-          .save()
+        Right(
+          (
+            SparkSession.builder
+              .master("local[*]")
+              .appName("hotels-batching")
+              .getOrCreate(),
+            Config(brokerList, topicName, outputDir)
+          )
+        )
       case _ =>
-        sys.error(
-          "Usage: spark-submit --class Main --master <master> batching.jar <brocker-list> <topic-name> <out-dir>"
+        Left(
+          InitError(
+            "Usage: spark-submit --class Main --master <master> batching.jar <brocker-list> <topic-name> <out-dir>"
+          )
         )
     }
 }
+
+final case class Config(brokerList: String, topicName: String, outputDir: String)

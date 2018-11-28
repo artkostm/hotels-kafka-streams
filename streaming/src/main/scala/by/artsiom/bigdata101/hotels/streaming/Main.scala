@@ -1,44 +1,55 @@
 package by.artsiom.bigdata101.hotels.streaming
 
-import by.artsiom.bigdata101.hotels.HotelImplicits
+import by.artsiom.bigdata101.hotels.{HotelImplicits, HotelsApp, InitError}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.types.BinaryType
 
-object Main extends HotelImplicits {
+object Main extends HotelsApp[Config] with HotelImplicits {
 
-  def main(args: Array[String]): Unit =
+  override def run(implicit spark: SparkSession, config: Config): Unit = {
+    val kafkaStreamDF = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", config.brokerList)
+      .option("subscribe", config.topicName)
+      .option("startingOffsets", "latest")
+      .load()
+
+    import spark.implicits._
+
+    kafkaStreamDF
+      .coalesce(2)
+      .select($"value".cast(BinaryType).as("event"))
+      .fromAvro("event")
+      .writeStream
+      .format("parquet")
+      .queryName("parquet_files_to_hdfs")
+      .outputMode(OutputMode.Append())
+      .option("path", config.outputDir)
+      .option("checkpointLocation", "/tmp/hotels_streaming/")
+      .start()
+      .awaitTermination()
+  }
+
+  override def setup(args: Array[String]): Either[InitError, (SparkSession, Config)] =
     args match {
       case Array(brokerList, topicName, outputDir) =>
-        implicit val spark = SparkSession.builder
-          .master("local[*]")
-          .appName("hotels-streaming")
-          .getOrCreate()
-
-        val kafkaStreamDF = spark.readStream
-          .format("kafka")
-          .option("kafka.bootstrap.servers", brokerList)
-          .option("subscribe", topicName)
-          .option("startingOffsets", "latest")
-          .load()
-
-        import spark.implicits._
-
-        kafkaStreamDF
-          .coalesce(2)
-          .select($"value".cast(BinaryType).as("event"))
-          .fromAvro("event")
-          .writeStream
-          .format("parquet")
-          .queryName("parquet_files_to_hdfs")
-          .outputMode(OutputMode.Append())
-          .option("path", outputDir)
-          .option("checkpointLocation", "/tmp/hotels_streaming/")
-          .start()
-          .awaitTermination()
+        Right(
+          (
+            SparkSession.builder
+              .master("local[*]")
+              .appName("hotels-streaming")
+              .getOrCreate(),
+            Config(brokerList, topicName, outputDir)
+          )
+        )
       case _ =>
-        sys.error(
-          "Usage: spark-submit --class Main --master <master> streaming.jar <brocker-list> <topic-name> <out-dir>"
+        Left(
+          InitError(
+            "Usage: spark-submit --class Main --master <master> streaming.jar <brocker-list> <topic-name> <out-dir>"
+          )
         )
     }
 }
+
+final case class Config(brokerList: String, topicName: String, outputDir: String)
