@@ -6,11 +6,17 @@ object Dependencies {
     val alpakka             = "0.22"
     val akkaMonitor         = "0.1.1"
 
-    val spark  = "2.4.0"
     val elasticsearch = "6.5.1"
-    val avro4s = "2.0.2"
+    val spark         = "2.4.0"
+    val avro4s        = "2.0.2"
+
+    val scalaTest       = "3.0.5"
+    val scalaCheck      = "1.14.0"
+    val scalaMock       = "4.1.0"
+    val embeddedKafka   = "2.0.0"
+    val embeddedElastic = "2.7.0"
   }
-  
+
   lazy val spark = Seq(
     "org.apache.spark" %% "spark-core" % versions.spark % Provided,
     "org.apache.spark" %% "spark-sql"  % versions.spark % Provided
@@ -24,7 +30,7 @@ object Dependencies {
   lazy val sparkCommon = spark ++ Seq(
     "org.apache.spark" %% "spark-sql-kafka-0-10" % versions.spark % Provided
   )
-  
+
   lazy val sparkStreaming = spark ++ Seq(
     "org.apache.spark" %% "spark-streaming" % versions.spark % Provided
   )
@@ -32,7 +38,7 @@ object Dependencies {
   lazy val generatorModule = Seq(
     "com.danielasfregola" %% "random-data-generator" % versions.randomDataGenerator,
     "com.typesafe.akka"   %% "akka-stream-kafka"     % versions.alpakka,
-    "com.github.artkostm" %% "akka-stream-mon" % versions.akkaMonitor
+    "com.github.artkostm" %% "akka-stream-mon"       % versions.akkaMonitor
   )
 
   lazy val streamingModule = sparkStreaming ++ Seq(
@@ -43,8 +49,19 @@ object Dependencies {
   lazy val batchingModule = spark ++ Seq(
     "org.apache.spark" %% "spark-sql-kafka-0-10" % versions.spark
   )
-  
+
   lazy val elastic = streamingModule ++ Seq(
     "org.elasticsearch" %% "elasticsearch-spark-20" % versions.elasticsearch
   )
+
+  lazy val commonTest = Seq(
+    "org.scalatest"  %% "scalatest"  % versions.scalaTest,
+    "org.scalacheck" %% "scalacheck" % versions.scalaCheck,
+    "org.scalamock"  %% "scalamock"  % versions.scalaMock
+  ).map(_ % Test)
+
+  lazy val test = commonTest ++ Seq(
+    "net.manub"       %% "scalatest-embedded-kafka" % versions.embeddedKafka,
+    "pl.allegro.tech" % "embedded-elasticsearch"    % versions.embeddedElastic
+  ).map(_ % Test)
 }

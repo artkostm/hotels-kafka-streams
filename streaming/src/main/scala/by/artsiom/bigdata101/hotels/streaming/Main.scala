@@ -33,7 +33,7 @@ object Main extends HotelImplicits {
           .queryName("parquet_files_to_hdfs")
           .outputMode(OutputMode.Append())
           .option("path", outputDir)
-          .option("checkpointLocation", "checkpoint")
+          .option("checkpointLocation", "/tmp/hotels_streaming/")
           .start()
           .awaitTermination()
       case _ =>
