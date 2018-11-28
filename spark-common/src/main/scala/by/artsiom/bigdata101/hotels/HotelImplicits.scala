@@ -10,7 +10,6 @@ import org.apache.spark.util.LongAccumulator
 trait HotelImplicits extends Serializable {
   implicit class HotelsDataframeDeserializer(dataframe: DataFrame)(implicit spark: SparkSession) extends Serializable {
     import spark.implicits._
-    import Event._
 
     val rowEventSchema = AvroSchema[Event].toString
 
