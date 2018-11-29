@@ -20,6 +20,15 @@ java -jar \
 `akka.kafka.producer.kafka-clients.bootstrap.servers` - broker list
 `akka.kafka.producer.topic.name` - topic name
 
+Download mpack from https://community.hortonworks.com/storage/attachments/87415-elasticsearch-mpack-2500-9.tar.gz to ambari-server node (/home/root)
+
+Install Management Pack ```sudo ambari-server install-mpack --mpack=/home/root/87415-elasticsearch-mpack-2500-9.tar.gz --verbose```
+
+(to uninstall use ```sudo ambari-server uninstall-mpack --mpack-name=elasticsearch-ambari.mpack```). Then restart Ambari Server ```sudo ambari-server restart```
+
+The following settings will be required during the Install Wizard
+
+
 
 The Create Index API is used to manually create an index in Elasticsearch. All documents in Elasticsearch are stored inside of one index or another.
 
