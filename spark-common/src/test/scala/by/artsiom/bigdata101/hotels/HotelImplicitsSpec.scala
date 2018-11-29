@@ -12,8 +12,8 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec}
 class HotelImplicitsSpec extends FlatSpec with BeforeAndAfterAll {
 
   var spark: SparkSession = _
-  var testDf: DataFrame = _
-  val event = testEvent()
+  var testDf: DataFrame   = _
+  val event               = testEvent()
 
   override protected def beforeAll(): Unit = {
     val sparkSession = SparkSession.builder
@@ -30,7 +30,7 @@ class HotelImplicitsSpec extends FlatSpec with BeforeAndAfterAll {
 
   it should "convert Dataframe to Dataset[Event] correctly" in {
     implicit val sparkSession = spark
-    val hotelImplicits = new HotelImplicits {}
+    val hotelImplicits        = new HotelImplicits {}
     import hotelImplicits._
 
     testDf.fromAvro("event").collect().foreach { actualEvent =>
@@ -52,9 +52,28 @@ class HotelImplicitsSpec extends FlatSpec with BeforeAndAfterAll {
 
   def testEvent() = Event(
     new Timestamp(new UDate().getTime),
-    1, 2, 3, 4, 5, 6.0F, 7, true, false,
-    8, new Date(new UDate().getTime),
-    new Date(new UDate().getTime), 9, 10,
-    11, 12, 13, false, 14, 15, 16, 17, 18
+    1,
+    2,
+    3,
+    4,
+    5,
+    6.0F,
+    7,
+    true,
+    false,
+    8,
+    new Date(new UDate().getTime),
+    new Date(new UDate().getTime),
+    9,
+    10,
+    11,
+    12,
+    13,
+    false,
+    14,
+    15,
+    16,
+    17,
+    18
   )
 }

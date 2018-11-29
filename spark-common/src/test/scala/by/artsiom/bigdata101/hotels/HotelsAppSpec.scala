@@ -8,7 +8,8 @@ class HotelsAppSpec extends FlatSpec {
 
   final case class TestConfig(param1: String, param2: String)
 
-  def withCorrectParams(param1: String, param2: String)(testCode: HotelsApp[TestConfig] => Unit): Unit =
+  def withCorrectParams(param1: String,
+                        param2: String)(testCode: HotelsApp[TestConfig] => Unit): Unit =
     testCode(new HotelsApp[TestConfig] {
       override def run(config: TestConfig)(implicit spark: SparkSession): Unit = {
         assert(spark == null)
@@ -18,7 +19,7 @@ class HotelsAppSpec extends FlatSpec {
       override def setup(args: Array[String]): Either[InitError, (SparkSession, TestConfig)] =
         args match {
           case Array(p1, p2) => Right((null, TestConfig(p1, p2)))
-          case _ => fail("have to fail this")
+          case _             => fail("have to fail this")
         }
     })
 
@@ -27,7 +28,8 @@ class HotelsAppSpec extends FlatSpec {
   }
 
   "HotelsApp" should "throw an exception for wrong params" in withCorrectParams(Param1, Param2) {
-    app => intercept[Exception](app.main(Array(Param1, Param2, Param3)))
+    app =>
+      intercept[Exception](app.main(Array(Param1, Param2, Param3)))
   }
 }
 
