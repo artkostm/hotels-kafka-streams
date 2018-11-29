@@ -27,10 +27,10 @@ class BatchingTest
     with EmbeddedKafka {
   import BatchingTest._
 
-  implicit val mat = ActorMaterializer()
-
-  implicit val kafkaConfig     = EmbeddedKafkaConfig(kafkaPort = 12345, zooKeeperPort = 6543)
+  implicit val mat             = ActorMaterializer()
   implicit val kafkaSerializer = new ByteArraySerializer()
+
+  val kafkaConfig = EmbeddedKafkaConfig()
 
   def withConfig(kafkaConf: EmbeddedKafkaConfig)(test: Config => Unit): Unit = {
     val tmpDir = FileUtils.getTempDirectoryPath + File.separator + BatchingTest.TempDirectoryPrefix + UUID
@@ -42,8 +42,8 @@ class BatchingTest
   }
 
   it should "successfully create parquet files from kafka messages" in withConfig(kafkaConfig) {
-    config =>
-      withRunningKafka {
+    jobConfig =>
+      withRunningKafkaOnFoundPort(kafkaConfig) { implicit kafkaConfigWithPorts =>
         val messagesPublished = Source
           .fromPublisher(RandomEventsPublisher(10))
           .map(EventConverter(Topic))
@@ -51,11 +51,11 @@ class BatchingTest
 
         assert(Await.result(messagesPublished, 10 seconds) == Done)
 
-        Main.run(config)(
+        Main.run(jobConfig)(
           SparkSession.builder.appName("batching-integ-test").master("local").getOrCreate()
         )
 
-        val files = Files.list(new File(config.outputDir).toPath).iterator().asScala
+        val files = Files.list(new File(jobConfig.outputDir).toPath).iterator().asScala
         assert(files.exists(_.getFileName.toString == "_SUCCESS"))
       }
   }
