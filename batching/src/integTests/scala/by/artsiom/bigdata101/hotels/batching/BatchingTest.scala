@@ -1,7 +1,7 @@
 package by.artsiom.bigdata101.hotels.batching
 
 import java.io.File
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
 import java.util.UUID
 
 import akka.Done
@@ -37,7 +37,7 @@ class BatchingTest extends TestKit(ActorSystem("batching_test")) with FlatSpecLi
   }
 
 
-  it should "be good" in withConfig(kafkaConfig) { config =>
+  it should "successfully create parquet files from kafka messages" in withConfig(kafkaConfig) { config =>
     withRunningKafka {
       val messagesPublished = Source.fromPublisher(RandomEventsPublisher(10))
         .map(EventConverter(Topic))
