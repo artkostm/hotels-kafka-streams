@@ -1,5 +1,4 @@
-package by.artsiom.bigdata101.hotels.batching
-
+package by.artsiom.bigdata101.hotels.streaming
 import java.io.File
 import java.nio.file.Files
 import java.util.UUID
@@ -10,25 +9,24 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.testkit.TestKit
 import by.artsiom.bigdata101.hotels.generator.converter.EventConverter
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import org.apache.spark.sql.SparkSession
-import org.scalatest.FlatSpecLike
 import by.artsiom.bigdata101.hotels.generator.publisher.RandomEventsPublisher
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.commons.io.FileUtils
 import org.apache.kafka.common.serialization.ByteArraySerializer
+import org.apache.spark.sql.SparkSession
+import org.scalatest.FlatSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
 
-class BatchingTest
-    extends TestKit(ActorSystem("batching_test"))
-    with FlatSpecLike
-    with EmbeddedKafka {
-  import BatchingTest._
+class StreamingTest extends TestKit(ActorSystem("streamint_test")) with FlatSpecLike
+with EmbeddedKafka {
+  import StreamingTest._
 
   implicit val mat             = ActorMaterializer()
   implicit val kafkaSerializer = new ByteArraySerializer()
+  implicit val dispatcher      = system.dispatcher
 
   val kafkaConfig = EmbeddedKafkaConfig()
 
@@ -41,7 +39,7 @@ class BatchingTest
     finally FileUtils.deleteQuietly(new File(tmpDir))
   }
 
-  it should "successfully create parquet files from kafka messages" in withConfig(kafkaConfig) {
+  it should "successfully stream parquet files from kafka" in withConfig(kafkaConfig) {
     jobConfig =>
       withRunningKafkaOnFoundPort(kafkaConfig) { implicit kafkaConfigWithPorts =>
         val messagesPublished = Source
@@ -51,19 +49,23 @@ class BatchingTest
 
         assert(Await.result(messagesPublished, 10 seconds) == Done)
 
+        val spark = SparkSession.builder.appName("streaming-integ-test").master("local").getOrCreate()
+        system.scheduler.scheduleOnce(10 seconds) {
+          spark.streams.active.foreach(_.stop())
+        }
         Main.run(jobConfig)(
-          SparkSession.builder.appName("batching-integ-test").master("local").getOrCreate()
+          spark
         )
 
         val files = Files.list(new File(jobConfig.outputDir).toPath).iterator().asScala
-        assert(files.exists(_.getFileName.toString == "_SUCCESS"))
+        assert(files.exists(_.getFileName.toString.startsWith("part-0000")))
       }
   }
 }
 
-object BatchingTest {
+object StreamingTest {
   val Topic               = "TopicTest" + UUID.randomUUID().toString
-  val TempDirectoryPrefix = "tmp-batching-"
+  val TempDirectoryPrefix = "tmp-streaming-"
   val Parallelism         = 10
   val NumberOfEvents      = 10
 }
