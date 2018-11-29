@@ -34,10 +34,10 @@ class EcasticTest
   val kafkaConfig = EmbeddedKafkaConfig()
 
   val es = EmbeddedElastic.builder
-    .withIndex(Index)
     .withSetting(PopularProperties.TRANSPORT_TCP_PORT, 9300)
+    .withSetting(PopularProperties.CLUSTER_NAME, "elastic-test")
     .withDownloadDirectory(new File("./es.tmp/"))
-    .withInstallationDirectory(new File("./es.tmp/"))
+    .withInstallationDirectory(new File("./es.tmp/").getAbsoluteFile)
     .withCleanInstallationDirectoryOnStop(true)
     .withElasticVersion("6.5.1")
     .withStartTimeout(3, TimeUnit.MINUTES)
@@ -46,7 +46,6 @@ class EcasticTest
   override protected def beforeAll(): Unit = es.start()
 
   def withConfig(kafkaConf: EmbeddedKafkaConfig)(test: Config => Unit): Unit = {
-    es.start()
     try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, IndexAndType, "localhost"))
     finally es.stop()
   }
@@ -62,7 +61,7 @@ class EcasticTest
         assert(Await.result(messagesPublished, 10 seconds) == Done)
 
         val spark = SparkSession.builder.appName("streaming-integ-test").master("local").getOrCreate()
-        system.scheduler.scheduleOnce(10 seconds) {
+        system.scheduler.scheduleOnce(50 seconds) {
           spark.streams.active.foreach(_.stop())
         }
         Main.run(jobConfig)(
