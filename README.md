@@ -9,7 +9,7 @@ To generate 10000 events and put them into Kafka:
 ```
 java -jar \
     -Dakka.kafka.producer.kafka-clients.bootstrap.servers=192.168.99.100:9092 \
-    -Dakka.kafka.producer.topic.name=TestTopic \
+    -Dakka.kafka.producer.topic.name=AvroTopic \
     -Dakka.kafka.producer.parallelism=10 \
     -Dgenerator.number-of-events=10000 \
     -Dscala.time \
