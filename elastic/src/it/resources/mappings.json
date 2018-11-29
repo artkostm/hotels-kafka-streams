@@ -1,0 +1,81 @@
+{
+  "mappings": {
+    "event": {
+      "properties": {
+        "channel": {
+          "type": "long"
+        },
+        "cnt": {
+          "type": "long"
+        },
+        "dateTime": {
+          "type": "date",
+          "format": "epoch_millis"
+        },
+        "hotelCluster": {
+          "type": "long"
+        },
+        "hotelContinent": {
+          "type": "long"
+        },
+        "hotelCountry": {
+          "type": "long"
+        },
+        "hotelMarket": {
+          "type": "long"
+        },
+        "isBooking": {
+          "type": "boolean"
+        },
+        "isMobile": {
+          "type": "boolean"
+        },
+        "isPackage": {
+          "type": "boolean"
+        },
+        "origDestinationDistance": {
+          "type": "float"
+        },
+        "posaContinent": {
+          "type": "long"
+        },
+        "siteName": {
+          "type": "long"
+        },
+        "srchAdultsCnt": {
+          "type": "long"
+        },
+        "srchChildrenCnt": {
+          "type": "long"
+        },
+        "srchCi": {
+          "type": "long"
+        },
+        "srchCo": {
+          "type": "long"
+        },
+        "srchDestinationId": {
+          "type": "long"
+        },
+        "srchDestinationTypeId": {
+          "type": "long"
+        },
+        "srchRmCnt": {
+          "type": "long"
+        },
+        "userId": {
+          "type": "long"
+        },
+        "userLocationCity": {
+          "type": "long"
+        },
+        "userLocationCountry": {
+          "type": "long"
+        },
+        "userLocationRegion": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}
