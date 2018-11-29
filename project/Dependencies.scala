@@ -17,6 +17,7 @@ object Dependencies {
     val scalaMock       = "4.1.0"
     val embeddedKafka   = "2.0.0"
     val embeddedElastic = "2.7.0"
+    val jackson = "2.9.6"
   }
 
   lazy val spark = Seq(
@@ -60,16 +61,23 @@ object Dependencies {
     "org.scalatest"  %% "scalatest"  % versions.scalaTest,
     "org.scalacheck" %% "scalacheck" % versions.scalaCheck,
     "org.scalamock"  %% "scalamock"  % versions.scalaMock
-  ).map(_ % Test)
+  )
 
   lazy val generatorTests = commonTest ++ Seq(
     "com.typesafe.akka"   %% "akka-stream-testkit" % versions.akka,
     "org.reactivestreams" % "reactive-streams-tck" % "1.0.2"
-  ).map(_ % Test)
+  )
 
   lazy val integTests = commonTest ++ Seq(
     "net.manub"       %% "scalatest-embedded-kafka" % versions.embeddedKafka,
     "pl.allegro.tech" % "embedded-elasticsearch"    % versions.embeddedElastic,
     "com.typesafe.akka"   %% "akka-stream-testkit" % versions.akka
-  ).map(_ % Test)
+  )
+
+  lazy val overrides = Seq(
+    "com.fasterxml.jackson.core"   % "jackson-core"          % versions.jackson,
+    "com.fasterxml.jackson.core"   % "jackson-databind"      % versions.jackson,
+    "com.fasterxml.jackson.core"   % "jackson-annotations"   % versions.jackson,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % versions.jackson
+  )
 }

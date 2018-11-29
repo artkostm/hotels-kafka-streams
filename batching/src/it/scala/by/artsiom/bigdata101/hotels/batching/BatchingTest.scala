@@ -30,7 +30,7 @@ class BatchingTest extends TestKit(ActorSystem("batching_test")) with FlatSpecLi
   implicit val kafkaSerializer = new ByteArraySerializer()
 
   def withConfig(kafkaConf: EmbeddedKafkaConfig)(test: Config => Unit): Unit = {
-    val tmpDir = FileUtils.getTempDirectoryPath + File.separator + BatchingTest.TempDirectory + UUID.randomUUID().toString
+    val tmpDir = FileUtils.getTempDirectoryPath + File.separator + BatchingTest.TempDirectoryPrefix + UUID.randomUUID().toString
     println("Temp file path: " + tmpDir)
     try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, tmpDir))
     finally FileUtils.deleteQuietly(new File(tmpDir))
@@ -55,7 +55,7 @@ class BatchingTest extends TestKit(ActorSystem("batching_test")) with FlatSpecLi
 
 object BatchingTest {
   val Topic = "TopicTest"
-  val TempDirectory = "tmp-batching"
+  val TempDirectoryPrefix = "tmp-batching-"
   val Parallelism = 10
   val NumberOfEvents = 10
 }

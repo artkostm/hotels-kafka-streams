@@ -43,7 +43,7 @@ lazy val spark_common = (project in file("spark-common"))
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.sparkCommon,
-    libraryDependencies ++= Dependencies.commonTest
+    libraryDependencies ++= unitTesting(Dependencies.commonTest)
   )
   .dependsOn(interface)
 
@@ -51,7 +51,7 @@ lazy val generator = (project in file("generator"))
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.generatorModule,
-    libraryDependencies ++= Dependencies.generatorTests
+    libraryDependencies ++= unitTesting(Dependencies.generatorTests)
   )
   .dependsOn(interface)
   .enablePlugins(JavaAppPackaging)
@@ -71,16 +71,18 @@ lazy val elastic = standardSparkModule(project in file("elastic"))
     libraryDependencies ++= Dependencies.elasticModule
   )
 
-lazy val IntegrationTests = config("integTests").extend(Test)
-
 def standardSparkModule(proj: Project): Project =
   proj
+    .configs(IntegrationTest)
     .settings(
       commonSettings,
+      Defaults.itSettings,
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
-      libraryDependencies ++= Dependencies.integTests
+      libraryDependencies ++= integTesting(Dependencies.integTests),
+      dependencyOverrides ++= Dependencies.overrides
     )
-    .dependsOn(interface, spark_common, generator % Test)
+    .dependsOn(interface, spark_common, generator % IntegrationTest)
     .enablePlugins(JavaAppPackaging)
-    .configs(IntegrationTests)
-    .settings(inConfig(IntegrationTests)(Defaults.testSettings): _*)
+
+def unitTesting(tests: Seq[ModuleID]) = tests.map(_ % Test)
+def integTesting(tests: Seq[ModuleID]) = tests.map(_ % IntegrationTest)

@@ -1,3 +1,9 @@
+Create kafka topic (with the name AvroTopic) using:
+
+```
+kafka-topics.sh --create --zookeeper 192.168.99.100:2181 --replication-factor 1 --partitions 3 --topic AvroTopic
+```
+
 To generate 10000 events and put them into Kafka:
 
 ```
