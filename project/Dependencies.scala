@@ -9,7 +9,7 @@ object Dependencies {
     val akka                = "2.5.13"
 
     val elasticsearch = "6.5.1"
-    val spark         = "2.4.0"
+    val spark         = "2.3.0"
     val avro4s        = "2.0.2"
 
     val scalaTest       = "3.0.5"
@@ -17,7 +17,7 @@ object Dependencies {
     val scalaMock       = "4.1.0"
     val embeddedKafka   = "2.0.0"
     val embeddedElastic = "2.7.0"
-    val jackson = "2.9.6"
+    val jackson         = "2.9.6"
   }
 
   lazy val spark = Seq(
@@ -69,9 +69,9 @@ object Dependencies {
   )
 
   lazy val integTests = commonTest ++ Seq(
-    "net.manub"       %% "scalatest-embedded-kafka" % versions.embeddedKafka,
-    "pl.allegro.tech" % "embedded-elasticsearch"    % versions.embeddedElastic,
-    "com.typesafe.akka"   %% "akka-stream-testkit" % versions.akka
+    "net.manub"         %% "scalatest-embedded-kafka" % versions.embeddedKafka,
+    "pl.allegro.tech"   % "embedded-elasticsearch"    % versions.embeddedElastic,
+    "com.typesafe.akka" %% "akka-stream-testkit"      % versions.akka
   )
 
   lazy val overrides = Seq(
