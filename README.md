@@ -180,6 +180,10 @@ It is a bit slower than the batch job because job re-submittion always takes som
 
 ![API comparison](./img/streaming-last-task.png "API comparison")
 
+And here is what we can see in HDFS:
+
+![API comparison](./img/parquet-in-hdfs.png "API comparison")
+
 ## Task 1 (Elasticsearch)
 
 ### How to install ELK stack on HDP
