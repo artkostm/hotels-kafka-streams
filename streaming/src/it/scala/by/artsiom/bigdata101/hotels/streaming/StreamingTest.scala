@@ -35,7 +35,7 @@ with EmbeddedKafka {
       .randomUUID()
       .toString
     println("Temp file path: " + tmpDir)
-    try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, tmpDir))
+    try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, tmpDir, "earliest"))
     finally FileUtils.deleteQuietly(new File(tmpDir))
   }
 
@@ -43,7 +43,7 @@ with EmbeddedKafka {
     jobConfig =>
       withRunningKafkaOnFoundPort(kafkaConfig) { implicit kafkaConfigWithPorts =>
         val messagesPublished = Source
-          .fromPublisher(RandomEventsPublisher(10))
+          .fromPublisher(RandomEventsPublisher(NumberOfEvents))
           .map(EventConverter(Topic))
           .runWith(Sink.foreach(msg => publishToKafka(msg)))
 
@@ -53,7 +53,7 @@ with EmbeddedKafka {
         system.scheduler.scheduleOnce(10 seconds) {
           spark.streams.active.foreach(_.stop())
         }
-        Main.run(jobConfig)(
+        Main.run(jobConfig.copy(brokerList = s"localhost:${kafkaConfigWithPorts.kafkaPort}"))(
           spark
         )
 
@@ -64,8 +64,7 @@ with EmbeddedKafka {
 }
 
 object StreamingTest {
-  val Topic               = "TopicTest" + UUID.randomUUID().toString
+  val Topic               = "StreamingTopicTest"
   val TempDirectoryPrefix = "tmp-streaming-"
-  val Parallelism         = 10
   val NumberOfEvents      = 10
 }

@@ -51,7 +51,7 @@ class BatchingTest
 
         assert(Await.result(messagesPublished, 10 seconds) == Done)
 
-        Main.run(jobConfig)(
+        Main.run(jobConfig.copy(brokerList = s"localhost:${kafkaConfigWithPorts.kafkaPort}"))(
           SparkSession.builder.appName("batching-integ-test").master("local").getOrCreate()
         )
 
@@ -62,8 +62,7 @@ class BatchingTest
 }
 
 object BatchingTest {
-  val Topic               = "TopicTest" + UUID.randomUUID().toString
+  val Topic               = "BatchingTopicTest"
   val TempDirectoryPrefix = "tmp-batching-"
-  val Parallelism         = 10
   val NumberOfEvents      = 10
 }

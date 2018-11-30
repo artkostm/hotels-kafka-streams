@@ -1,7 +1,6 @@
 package by.artsiom.bugdata101.hotels.elastic
 
 import java.io.File
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import akka.Done
@@ -16,11 +15,10 @@ import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
-import pl.allegro.tech.embeddedelasticsearch.{EmbeddedElastic, IndexSettings, PopularProperties}
+import pl.allegro.tech.embeddedelasticsearch.{EmbeddedElastic, PopularProperties}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.io.{Source => S}
 
 class EcasticTest
   extends TestKit(ActorSystem("elastic_test"))
@@ -37,16 +35,16 @@ class EcasticTest
     .withSetting(PopularProperties.TRANSPORT_TCP_PORT, 9300)
     .withSetting(PopularProperties.CLUSTER_NAME, "elastic-test")
     .withDownloadDirectory(new File("./es.tmp/"))
-    .withInstallationDirectory(new File("./es.tmp/").getAbsoluteFile)
+    .withInstallationDirectory(new File("./es.tmp/"))
     .withCleanInstallationDirectoryOnStop(true)
-    .withElasticVersion("6.5.1")
+    .withElasticVersion("6.3.0")
     .withStartTimeout(3, TimeUnit.MINUTES)
     .build()
 
   override protected def beforeAll(): Unit = es.start()
 
   def withConfig(kafkaConf: EmbeddedKafkaConfig)(test: Config => Unit): Unit = {
-    try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, IndexAndType, "localhost"))
+    try test(Config(s"localhost:${kafkaConf.kafkaPort}", Topic, IndexAndType, "localhost", "earliest"))
     finally es.stop()
   }
 
@@ -60,15 +58,17 @@ class EcasticTest
 
         assert(Await.result(messagesPublished, 10 seconds) == Done)
 
-        val spark = SparkSession.builder.appName("streaming-integ-test").master("local").getOrCreate()
-        system.scheduler.scheduleOnce(50 seconds) {
+        val spark = SparkSession.builder.appName("elastic-integ-test").master("local").getOrCreate()
+        system.scheduler.scheduleOnce(10 seconds) {
           spark.streams.active.foreach(_.stop())
         }
-        Main.run(jobConfig)(
+        Main.run(jobConfig.copy(brokerList = s"localhost:${kafkaConfigWithPorts.kafkaPort}"))(
           spark
         )
 
-        assert(es.fetchAllDocuments(Index).size() == NumberOfEvents)
+        es.refreshIndices()
+
+        assert(es.fetchAllDocuments(IndexAndType).size() == NumberOfEvents)
       }
   }
 
@@ -76,11 +76,10 @@ class EcasticTest
 }
 
 object ElasticTest {
-  val Topic               = "TopicTest" + UUID.randomUUID().toString
+  val Topic               = "ElasticTopicTest"
   val Index               = "events"
   val Type                = "event"
   val IndexAndType        = s"$Index/$Type"
   val TempDirectoryPrefix = "tmp-elastic-"
-  val Parallelism         = 10
   val NumberOfEvents      = 10
 }
