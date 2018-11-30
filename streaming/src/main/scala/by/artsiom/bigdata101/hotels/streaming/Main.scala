@@ -12,7 +12,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .format("kafka")
       .option("kafka.bootstrap.servers", config.brokerList)
       .option("subscribe", config.topicName)
-      .option("startingOffsets", "latest")
+      .option("startingOffsets", config.offset)
       .load()
 
     import spark.implicits._
@@ -28,7 +28,8 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .option("path", config.outputDir)
       .option("checkpointLocation", "/tmp/hotels_streaming/")
       .start()
-      .awaitTermination()
+
+    spark.streams.awaitAnyTermination()
   }
 
   override def setup(args: Array[String]): Either[InitError, (SparkSession, Config)] =
@@ -52,4 +53,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
     }
 }
 
-final case class Config(brokerList: String, topicName: String, outputDir: String)
+final case class Config(brokerList: String,
+                        topicName: String,
+                        outputDir: String,
+                        offset: String = "latest")

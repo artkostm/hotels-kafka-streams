@@ -4,7 +4,10 @@ import by.artsiom.bigdata101.hotels.{HotelImplicits, HotelsApp, InitError}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.BinaryType
 
-final case class Config(brokerList: String, topicName: String, outputDir: String)
+final case class Config(brokerList: String,
+                        topicName: String,
+                        outputDir: String,
+                        offset: String = "earliest")
 
 object Main extends HotelsApp[Config] with HotelImplicits {
   override def run(config: Config)(implicit spark: SparkSession): Unit = {
@@ -12,7 +15,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .format("kafka")
       .option("kafka.bootstrap.servers", config.brokerList)
       .option("subscribe", config.topicName)
-      .option("startingOffsets", "earliest")
+      .option("startingOffsets", config.offset)
       .load()
 
     import spark.implicits._
@@ -24,7 +27,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .write
       .format("parquet")
       .option("path", config.outputDir)
-      .option("checkpointLocation", s"/tmp/hotel_batching/")
+      .option("checkpointLocation", "/tmp/hotel_batching/")
       .save()
     spark.stop()
   }

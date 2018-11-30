@@ -11,7 +11,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .format("kafka")
       .option("kafka.bootstrap.servers", config.brokerList)
       .option("subscribe", config.topicName)
-      .option("startingOffsets", "latest")
+      .option("startingOffsets", config.offset)
       .load()
 
     import spark.implicits._
@@ -30,7 +30,8 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .option("es.index.auto.create", "true")
       .option("checkpointLocation", "/tmp/hotels_elastic/")
       .start(config.indexAndType)
-      .awaitTermination()
+
+    spark.streams.awaitAnyTermination()
   }
 
   override def setup(args: Array[String]): Either[InitError, (SparkSession, Config)] =
@@ -40,7 +41,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
           (
             SparkSession.builder
               .master("local[*]")
-              .appName("hotels-streaming")
+              .appName("hotels-elastic")
               .getOrCreate(),
             Config(brokerList, topicName, indexAndType, elasticNodes)
           )
@@ -58,5 +59,6 @@ final case class Config(
   brokerList: String,
   topicName: String,
   indexAndType: String,
-  elasticNodes: String
+  elasticNodes: String,
+  offset: String = "latest"
 )
