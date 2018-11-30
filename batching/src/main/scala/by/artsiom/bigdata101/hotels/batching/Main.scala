@@ -10,6 +10,7 @@ final case class Config(brokerList: String,
                         offset: String = "earliest")
 
 object Main extends HotelsApp[Config] with HotelImplicits {
+
   override def run(config: Config)(implicit spark: SparkSession): Unit = {
     val kafkaDF = spark.read
       .format("kafka")
@@ -29,6 +30,7 @@ object Main extends HotelsApp[Config] with HotelImplicits {
       .option("path", config.outputDir)
       .option("checkpointLocation", "/tmp/hotel_batching/")
       .save()
+
     spark.stop()
   }
 

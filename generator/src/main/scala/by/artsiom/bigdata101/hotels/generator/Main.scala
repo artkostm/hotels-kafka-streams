@@ -1,18 +1,17 @@
 package by.artsiom.bigdata101.hotels.generator
 
-import java.io.File
-import java.util.concurrent.{TimeUnit, TimeoutException}
+import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.scaladsl.{Flow, Source}
 import by.artsiom.bigdata101.hotels.generator.converter.EventConverter
 import by.artsiom.bigdata101.hotels.generator.publisher.RandomEventsPublisher
 import by.artsiom.bigdata101.hotels.model.Event
 import net.ruippeixotog.streammon.ThroughputMonitor
-import org.apache.kafka.common.serialization.ByteArraySerializer
+import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -35,9 +34,9 @@ object Main extends App with Pipeline with ConfigurationAware {
   implicit val global = system.dispatcher
 
   val producerSettings =
-    ProducerSettings[Array[Byte], Array[Byte]](
+    ProducerSettings[String, Array[Byte]](
       system,
-      new ByteArraySerializer,
+      new StringSerializer,
       new ByteArraySerializer
     )
 
@@ -57,8 +56,8 @@ object Main extends App with Pipeline with ConfigurationAware {
   val doneFuture = create(
     Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
     throttling().fold(producerRecordFlow)(t => producerRecordFlow.throttle(t._1, t._2)),
-    Sink.ignore
-    //Producer.plainSink(producerSettings)
+    //Sink.ignore
+    Producer.plainSink(producerSettings)
   ).run()
 
   doneFuture.onComplete(done => {
@@ -69,5 +68,5 @@ object Main extends App with Pipeline with ConfigurationAware {
     system.terminate()
   })
 
-  Await.ready(system.whenTerminated, Duration(5, TimeUnit.MINUTES))
+  Await.ready(system.whenTerminated, Duration(7, TimeUnit.MINUTES))
 }
