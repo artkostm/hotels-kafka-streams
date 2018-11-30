@@ -315,7 +315,7 @@ Where `localhost:9092` is the broker list, `AvroTopic` is the name of the kafka 
 
 Then run the event generator to see new events using Kibana.
 
-Let's create some visualisations to be able to see how much events per hour Elasticsearch has been indexed.
+Let's create some visualisations to be able to see how many events per hour Elasticsearch has been indexed.
 
 For that go to the Visualize section of Kibana UI. You can see different predefined widgets that we can create there:
 
