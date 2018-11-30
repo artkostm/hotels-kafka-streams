@@ -20,8 +20,10 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
 
-class StreamingTest extends TestKit(ActorSystem("streamint_test")) with FlatSpecLike
-with EmbeddedKafka {
+class StreamingTest
+    extends TestKit(ActorSystem("streamint_test"))
+    with FlatSpecLike
+    with EmbeddedKafka {
   import StreamingTest._
 
   implicit val mat             = ActorMaterializer()
@@ -39,27 +41,26 @@ with EmbeddedKafka {
     finally FileUtils.deleteQuietly(new File(tmpDir))
   }
 
-  it should "successfully stream parquet files from kafka" in withConfig(kafkaConfig) {
-    jobConfig =>
-      withRunningKafkaOnFoundPort(kafkaConfig) { implicit kafkaConfigWithPorts =>
-        val messagesPublished = Source
-          .fromPublisher(RandomEventsPublisher(NumberOfEvents))
-          .map(EventConverter(Topic))
-          .runWith(Sink.foreach(msg => publishToKafka(msg)))
+  it should "successfully stream parquet files from kafka" in withConfig(kafkaConfig) { jobConfig =>
+    withRunningKafkaOnFoundPort(kafkaConfig) { implicit kafkaConfigWithPorts =>
+      val messagesPublished = Source
+        .fromPublisher(RandomEventsPublisher(NumberOfEvents))
+        .map(EventConverter(Topic))
+        .runWith(Sink.foreach(msg => publishToKafka(msg)))
 
-        assert(Await.result(messagesPublished, 10 seconds) == Done)
+      assert(Await.result(messagesPublished, 10 seconds) == Done)
 
-        val spark = SparkSession.builder.appName("streaming-integ-test").master("local").getOrCreate()
-        system.scheduler.scheduleOnce(10 seconds) {
-          spark.streams.active.foreach(_.stop())
-        }
-        Main.run(jobConfig.copy(brokerList = s"localhost:${kafkaConfigWithPorts.kafkaPort}"))(
-          spark
-        )
-
-        val files = Files.list(new File(jobConfig.outputDir).toPath).iterator().asScala
-        assert(files.exists(_.getFileName.toString.startsWith("part-0000")))
+      val spark = SparkSession.builder.appName("streaming-integ-test").master("local").getOrCreate()
+      system.scheduler.scheduleOnce(10 seconds) {
+        spark.streams.active.foreach(_.stop())
       }
+      Main.run(jobConfig.copy(brokerList = s"localhost:${kafkaConfigWithPorts.kafkaPort}"))(
+        spark
+      )
+
+      val files = Files.list(new File(jobConfig.outputDir).toPath).iterator().asScala
+      assert(files.exists(_.getFileName.toString.startsWith("part-0000")))
+    }
   }
 }
 
