@@ -40,7 +40,6 @@ object Main extends HotelsApp[Config] with HotelImplicits {
         Right(
           (
             SparkSession.builder
-              .master("local[*]")
               .appName("hotels-batching")
               .getOrCreate(),
             Config(brokerList, topicName, outputDir)

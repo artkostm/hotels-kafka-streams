@@ -38,7 +38,6 @@ object Main extends HotelsApp[Config] with HotelImplicits {
         Right(
           (
             SparkSession.builder
-              .master("local[*]")
               .appName("hotels-streaming")
               .getOrCreate(),
             Config(brokerList, topicName, outputDir)

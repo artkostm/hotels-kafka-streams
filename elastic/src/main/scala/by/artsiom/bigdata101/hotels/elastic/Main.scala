@@ -40,7 +40,6 @@ object Main extends HotelsApp[Config] with HotelImplicits {
         Right(
           (
             SparkSession.builder
-              .master("local[*]")
               .appName("hotels-elastic")
               .getOrCreate(),
             Config(brokerList, topicName, indexAndType, elasticNodes)
