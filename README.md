@@ -24,9 +24,9 @@ java -jar \
     generator.jar
 ```
 
-`akka.kafka.producer.parallelism` - tuning parameter of how many sends that can run in parallel
-`akka.kafka.producer.kafka-clients.bootstrap.servers` - broker list
-`akka.kafka.producer.topic.name` - topic name
+- `akka.kafka.producer.parallelism` - tuning parameter of how many sends that can run in parallel
+- `akka.kafka.producer.kafka-clients.bootstrap.servers` - broker list
+- `akka.kafka.producer.topic.name` - topic name
 
 
 ### Batching vs Streaming
