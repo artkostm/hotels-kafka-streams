@@ -1,4 +1,4 @@
-## Task 1 (Spark Streaming)
+## Spark Streaming
 
 ### How to build artifacts
 
@@ -184,7 +184,7 @@ And here is what we can see in HDFS:
 
 ![API comparison](./img/parquet-in-hdfs.png "API comparison")
 
-## Task 1 (Elasticsearch)
+## Elasticsearch
 
 ### How to install ELK stack on HDP
 
