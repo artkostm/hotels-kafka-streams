@@ -66,8 +66,6 @@ class EcasticTest
           spark
         )
 
-        es.refreshIndices()
-
         assert(es.fetchAllDocuments(IndexAndType).size() == NumberOfEvents)
       }
   }

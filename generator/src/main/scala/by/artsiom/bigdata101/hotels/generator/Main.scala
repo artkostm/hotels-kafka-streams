@@ -56,7 +56,6 @@ object Main extends App with Pipeline with ConfigurationAware {
   val doneFuture = create(
     Source.fromPublisher(RandomEventsPublisher(numberOfEvents())),
     throttling().fold(producerRecordFlow)(t => producerRecordFlow.throttle(t._1, t._2)),
-    //Sink.ignore
     Producer.plainSink(producerSettings)
   ).run()
 
