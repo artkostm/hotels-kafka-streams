@@ -1,6 +1,6 @@
 ## Task 1 (Spark Streaming)
 
-### How to build jar
+### How to build artifacts
 
 Run ```sbt "project <name>" assembly```, where `<name>` is the name of the module (batching, streaming, elastic).
 
