@@ -103,7 +103,7 @@ INFO: Done
 [total 228963ms]
 ```
 
-Now let's see our topic size (the topic should have 3 partitions and in total 5_000_000 records):
+Now let's check out our topic size (the topic should have 3 partitions and in total 5_000_000 records):
 
 ```
 >./kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list 192.168.99.100:9092 --topic TestTopic --time -1
