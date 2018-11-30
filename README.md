@@ -9,14 +9,14 @@ Run ```sbt "project <name>" assembly```, where `<name>` is the name of the modul
 Create kafka topic (with the name AvroTopic) using:
 
 ```
-kafka-topics.sh --create --zookeeper 192.168.99.100:2181 --replication-factor 1 --partitions 3 --topic AvroTopic
+kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic AvroTopic
 ```
 
 To generate 10000 events and put them into Kafka:
 
 ```
 java -jar \
-    -Dakka.kafka.producer.kafka-clients.bootstrap.servers=192.168.99.100:9092 \
+    -Dakka.kafka.producer.kafka-clients.bootstrap.servers=localhost:9092 \
     -Dakka.kafka.producer.topic.name=AvroTopic \
     -Dakka.kafka.producer.parallelism=10 \
     -Dgenerator.number-of-events=10000 \
@@ -141,7 +141,17 @@ spark-submit \
     localhost:9092 AvroTopic hdfs://localhost:9000/tmp/batching-out
 ```
 
+Also, run the generator:
+
 ```shell
+java -jar \
+    -Dakka.kafka.producer.kafka-clients.bootstrap.servers=localhost:9092 \
+    -Dakka.kafka.producer.topic.name=AvroTopic \
+    -Dakka.kafka.producer.parallelism=20 \
+    -Dgenerator.number-of-events=5000000 \
+    -Dscala.time \
+    generator.jar
+...
 INFO: Processed events=7536 Throughput=8000.00 ev/s
 Nov 30, 2018 1:13:36 PM akka.actor.ActorSystemImpl
 INFO: Processed events=13008 Throughput=12879.21 ev/s
@@ -163,7 +173,12 @@ Nov 30, 2018 1:13:44 PM akka.actor.ActorSystemImpl
 INFO: Done
 [total 411729ms]
 ```
+![API comparison](./img/streaming-execution-time.png "API comparison")
 
+By clicking on last job, we can see events counter is 5000000. It took about 6 minutes to stream 5000000 events from Kafka to HDFS.
+It is a bit slower than the batch job because job re-submittion always takes some time and we do not have all events in our source at the one moment of time.
+
+![API comparison](./img/streaming-last-task.png "API comparison")
 
 ## Task 1 (Elasticsearch)
 
@@ -179,7 +194,19 @@ Install Management Pack
 
 Then restart Ambari Server ```sudo ambari-server restart```
 
-The following settings will be required during the Install Wizard
+Open Add Service Wizard and select Elasticsearch and Kibana services:
+
+![API comparison](./img/add-service-wizard.png "API comparison")
+
+The following settings will be required during the Install Wizard (Kibana should know where Elasticsearch is):
+
+![API comparison](./img/additional-settings.png "API comparison")
+
+The final step:
+
+![API comparison](./img/els-installation.png "API comparison")
+
+After that we can submit our spark job.
 
 ### Running streaming job
 
@@ -287,3 +314,20 @@ spark-submit \
 Where `localhost:9092` is the broker list, `AvroTopic` is the name of the kafka topic, `events/event` is the elasticsearch' index/type pair, and `localhost` - Elasticsearch node address.
 
 Then run the event generator to see new events using Kibana.
+
+Let's create some visualisations to be able to see how much events per hour Elasticsearch has been indexed.
+
+For that go to the Visualize section of Kibana UI. You can see different predefined widgets that we can create there:
+
+![API comparison](./img/visualisations.png "API comparison")
+
+I created two widgets for our dashboard - Metric and Vertical Bar. The first one to display current throughput and the second one for per hour statistics throughout the day.
+Here are some screenshots:
+
+![API comparison](./img/current-hour.png "API comparison")
+
+![API comparison](./img/count-by-hours.png "API comparison")
+
+After saving visualisations just add them to the dashboard:
+
+![API comparison](./img/kibana-dashboard.png "API comparison")
