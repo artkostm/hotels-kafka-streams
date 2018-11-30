@@ -138,7 +138,7 @@ spark-submit \
     --class by.artsiom.bigdata101.hotels.streaming.Main \
     --master yarn-client
     streaming.jar \
-    localhost:9092 AvroTopic hdfs://localhost:9000/tmp/batching-out
+    localhost:9092 AvroTopic hdfs://localhost:9000/tmp/streaming-out
 ```
 
 Also, run the generator:
