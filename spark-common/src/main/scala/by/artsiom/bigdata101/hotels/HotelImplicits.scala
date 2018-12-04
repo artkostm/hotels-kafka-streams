@@ -12,7 +12,7 @@ trait HotelImplicits extends Serializable {
       extends Serializable {
     import spark.implicits._
 
-    val rowEventSchema = AvroSchema[Event].toString
+    val rowEventSchema = spark.sparkContext.broadcast(AvroSchema[Event].toString)
 
     def fromAvro(
       columnToParse: String,
@@ -21,7 +21,10 @@ trait HotelImplicits extends Serializable {
       dataframe.map { row =>
         val bais = new ByteArrayInputStream(row.getAs[Array[Byte]](columnToParse))
         val input =
-          AvroInputStream.binary[Event].from(bais).build(new Schema.Parser().parse(rowEventSchema))
+          AvroInputStream
+            .binary[Event]
+            .from(bais)
+            .build(new Schema.Parser().parse(rowEventSchema.value))
         acc.add(1)
         input.iterator.next()
       }
